@@ -1,0 +1,148 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Garante que o carrossel ocupe a altura mínima da tela */
+}
+.carousel-container {
+    width: 100%;
+    max-width: 900px; /* Largura máxima do seu carrossel */
+    margin: 20px auto; /* Centraliza o carrossel na página */
+    overflow: hidden; /* Esconde o que está fora da área visível */
+    position: relative; /* Para posicionar os botões de navegação */
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15); /* Sombra mais sofisticada */
+    border-radius: 12px; /* Cantos arredondados */
+    background-color: #fff; /* Fundo branco para contraste */
+}
+
+.carousel-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out; /* Transição mais suave e um pouco mais lenta */
+}
+
+.carousel-slide {
+    min-width: 100%; /* Cada slide ocupa 100% da largura do contêiner */
+    box-sizing: border-box; /* Inclui padding e borda na largura */
+    position: relative;
+}
+
+.carousel-slide img {
+    width: 100%;
+    height: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove espaçamento extra abaixo da imagem */
+    border-radius: 12px; /* Cantos arredondados para as imagens */
+}
+
+.slide-text {
+    position: absolute;
+    bottom: 25px; /* Um pouco mais acima */
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.75); /* Fundo mais escuro para melhor legibilidade */
+    color: #fff;
+    padding: 12px 25px; /* Padding ajustado */
+    border-radius: 8px; /* Cantos arredondados para o texto */
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 1.3em; /* Tamanho de fonte um pouco maior */
+    font-weight: 600; /* Texto mais robusto */
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    opacity: 0; /* Começa invisível para animação */
+    transition: opacity 0.5s ease; /* Animação suave */
+}
+.carousel-slide.active .slide-text {
+    opacity: 1; /* Fica visível quando ativo */
+}
+
+/* Botões de Navegação */
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0, 0, 0, 0.6); /* Botões um pouco mais escuros */
+    color: #fff;
+    border: none;
+    padding: 18px 12px; /* Padding ajustado */
+    cursor: pointer;
+    font-size: 1.8em; /* Setas maiores */
+    z-index: 10;
+    border-radius: 50%; /* Botões redondos */
+    width: 55px; /* Largura ajustada */
+    height: 55px; /* Altura ajustada */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s ease, transform 0.3s ease;
+}
+
+.carousel-button:hover {
+    background: rgba(0, 0, 0, 0.9); /* Fica mais escuro ao passar o mouse */
+    transform: translateY(-50%) scale(1.1); /* Efeito de escala ao passar o mouse */
+}
+
+.carousel-button.prev {
+    left: 15px; /* Mais afastado da borda */
+}
+
+.carousel-button.next {
+    right: 15px; /* Mais afastado da borda */
+}
+
+/* Pontos de Navegação (Indicadores) */
+.carousel-dots {
+    text-align: center;
+    padding: 20px 0; /* Espaçamento maior */
+    position: absolute;
+    bottom: -50px; /* Posição abaixo do carrossel */
+    left: 0;
+    right: 0;
+}
+
+.dot {
+    height: 14px; /* Pontos maiores */
+    width: 14px; /* Pontos maiores */
+    margin: 0 6px;
+    background-color: #ccc; /* Cor padrão dos pontos */
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    cursor: pointer;
+}
+
+.dot.active {
+    background-color: #666; /* Cor do ponto ativo */
+    transform: scale(1.2); /* Efeito de escala para o ponto ativo */
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .slide-text {
+        font-size: 1em;
+        padding: 8px 15px;
+        bottom: 15px;
+    }
+    .carousel-button {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2em;
+        padding: 0; /* Remove padding extra para centralizar melhor */
+    }
+    .carousel-button.prev {
+        left: 5px;
+    }
+    .carousel-button.next {
+        right: 5px;
+    }
+    .dot {
+        height: 10px;
+        width: 10px;
+    }
+    .carousel-dots {
+        bottom: -35px;
+    }
+}
