@@ -1,32 +1,29 @@
-<div class="carousel-container">
-    <div class="carousel-track">
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Carrossel de Imagens</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="carousel-container">
         <div class="carousel-slide">
-            <a href="https://www.batatais.sp.gov.br/noticias/3487/inauguracao-da-creche-morada-do-verde-marca-passo-significativo-na-educacao-infantil-de-batatais" target="_blank" aria-label="Link para a notícia da Creche Morada do Verde">
-                <img src="https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3487_570_370_202506121406010601890.jpg" alt="Fachada da Creche Morada do Verde">
-                <div class="slide-text">Inauguração da Creche Morada do Verde</div>
-            </a>
+            <img src="https://via.placeholder.com/600x400/FF5733/FFFFFF?text=Imagem+1" alt="Imagem 1">
+            <img src="https://via.placeholder.com/600x400/33FF57/FFFFFF?text=Imagem+2" alt="Imagem 2">
+            <img src="https://via.placeholder.com/600x400/3357FF/FFFFFF?text=Imagem+3" alt="Imagem 3">
         </div>
-        <div class="carousel-slide">
-            <a href="https://www.batatais.sp.gov.br/noticias/3486/prefeitura-de-batatais-entrega-uniformes-escolares-para-alunos-do-ensino-fundamental" target="_blank" aria-label="Link para a notícia de entrega de uniformes escolares">
-                <img src="https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3486_570_370_202506111450387136200.jpg" alt="Alunos recebendo uniformes escolares">
-                <div class="slide-text">Entrega de Uniformes Escolares</div>
-            </a>
-        </div>
-        <div class="carousel-slide">
-            <a href="https://www.batatais.sp.gov.br/" target="_blank" aria-label="Link para o site oficial da Prefeitura de Batatais">
-                <img src="https://via.placeholder.com/900x400/ADD8E6/FFFFFF?text=Prefeitura+de+Batatais" alt="Prédio da prefeitura de Batatais">
-                <div class="slide-text">Visite o site da Prefeitura!</div>
-            </a>
-        </div>
-        <div class="carousel-slide">
-            <a href="https://www.batatais.sp.gov.br/turismo" target="_blank" aria-label="Link para a página de turismo de Batatais">
-                <img src="https://via.placeholder.com/900x400/90EE90/FFFFFF?text=Conhe%C3%A7a+Batatais" alt="Ponto turístico de Batatais">
-                <div class="slide-text">Explore os encantos da cidade!</div>
-            </a>
+
+        <button class="prev-btn">❮</button>
+        <button class="next-btn">❯</button>
+
+        <div class="carousel-dots">
+            <span class="dot active"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
         </div>
     </div>
 
-    <button class="carousel-button prev" aria-label="Slide anterior">&#10094;</button>
-    <button class="carousel-button next" aria-label="Próximo slide">&#10095;</button>
-    <div class="carousel-dots" role="tablist" aria-label="Navegação do Carrossel"></div>
-</div>
+    <script src="script.js"></script>
+</body>
+</html>
