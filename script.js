@@ -1,70 +1,101 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const carouselSlide = document.querySelector('.carousel-slide');
-    const images = document.querySelectorAll('.carousel-slide img');
-    const prevBtn = document.querySelector('.prev-btn');
-    const nextBtn = document.querySelector('.next-btn');
-    const dotsContainer = document.querySelector('.carousel-dots');
+const carouselContainer = document.querySelector('.carousel-container');
+const carouselTrack = document.querySelector('.carousel-track');
+const slides = Array.from(document.querySelectorAll('.carousel-slide'));
+const nextButton = document.querySelector('.next');
+const prevButton = document.querySelector('.prev');
+const dotsContainer = document.querySelector('.carousel-dots');
 
-    let counter = 0; // Índice da imagem atual
-    const slideWidth = images[0].clientWidth; // Largura de uma única imagem
+let slideWidth;
+let currentSlideIndex = 0;
+let autoPlayInterval;
 
-    // Cria os pontos de navegação dinamicamente
-    images.forEach((_, index) => {
+const setSlidePosition = () => {
+    slideWidth = slides[0].getBoundingClientRect().width;
+    slides.forEach((slide, index) => {
+        slide.style.left = slideWidth * index + 'px';
+    });
+    carouselTrack.style.transform = 'translateX(-' + slides[currentSlideIndex].style.left + ')';
+};
+
+const createDots = () => {
+    slides.forEach((_, index) => {
         const dot = document.createElement('span');
         dot.classList.add('dot');
-        if (index === 0) {
-            dot.classList.add('active');
-        }
-        dot.addEventListener('click', () => {
-            goToSlide(index);
-        });
+        dot.dataset.index = index;
+        dot.setAttribute('role', 'tab');
+        dot.setAttribute('aria-selected', 'false');
         dotsContainer.appendChild(dot);
     });
+    updateDots(currentSlideIndex);
+    slides[currentSlideIndex].classList.add('active');
+};
 
-    const dots = document.querySelectorAll('.carousel-dots .dot');
-
-    // Função para atualizar os pontos ativos
-    function updateDots() {
-        dots.forEach((dot, index) => {
-            if (index === counter) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
-    }
-
-    // Função para ir para um slide específico
-    function goToSlide(index) {
-        counter = index;
-        carouselSlide.style.transform = `translateX(${-slideWidth * counter}px)`;
-        updateDots();
-    }
-
-    // Botão Próximo
-    nextBtn.addEventListener('click', () => {
-        if (counter < images.length - 1) {
-            counter++;
+const updateDots = (index) => {
+    const dots = Array.from(dotsContainer.children);
+    dots.forEach((dot, idx) => {
+        if (idx === index) {
+            dot.classList.add('active');
+            dot.setAttribute('aria-selected', 'true');
         } else {
-            counter = 0; // Volta para o primeiro slide
+            dot.classList.remove('active');
+            dot.setAttribute('aria-selected', 'false');
         }
-        carouselSlide.style.transform = `translateX(${-slideWidth * counter}px)`;
-        updateDots();
     });
+};
 
-    // Botão Anterior
-    prevBtn.addEventListener('click', () => {
-        if (counter > 0) {
-            counter--;
-        } else {
-            counter = images.length - 1; // Vai para o último slide
-        }
-        carouselSlide.style.transform = `translateX(${-slideWidth * counter}px)`;
-        updateDots();
-    });
+const moveToSlide = (track, targetSlide) => {
+    track.style.transform = 'translateX(-' + targetSlide.style.left + ')';
+    currentSlideIndex = slides.indexOf(targetSlide);
+    updateDots(currentSlideIndex);
+    slides.forEach(slide => slide.classList.remove('active'));
+    slides[currentSlideIndex].classList.add('active');
+};
 
-    // (Opcional) Autoplay do carrossel
-    // setInterval(() => {
-    //     nextBtn.click();
-    // }, 3000); // Mude a imagem a cada 3 segundos
+const startAutoPlay = () => {
+    clearInterval(autoPlayInterval); // Garante que não há múltiplos intervalos rodando
+    autoPlayInterval = setInterval(() => {
+        const nextSlide = slides[currentSlideIndex + 1] || slides[0]; // Volta ao primeiro slide se for o último
+        moveToSlide(carouselTrack, nextSlide);
+    }, 6000); // Muda a cada 6 segundos
+};
+
+nextButton.addEventListener('click', () => {
+    const nextSlide = slides[currentSlideIndex + 1] || slides[0];
+    moveToSlide(carouselTrack, nextSlide);
+    startAutoPlay(); // Reinicia o auto-play após clique manual
 });
+
+prevButton.addEventListener('click', () => {
+    const prevSlide = slides[currentSlideIndex - 1] || slides[slides.length - 1]; // Vai para o último slide se for o primeiro
+    moveToSlide(carouselTrack, prevSlide);
+    startAutoPlay(); // Reinicia o auto-play após clique manual
+});
+
+dotsContainer.addEventListener('click', e => {
+    if (e.target.classList.contains('dot')) {
+        const targetIndex = parseInt(e.target.dataset.index);
+        const targetSlide = slides[targetIndex];
+        moveToSlide(carouselTrack, targetSlide);
+        startAutoPlay(); // Reinicia o auto-play após clique manual
+    }
+});
+
+// Pausar o auto-play no hover do carrossel
+carouselContainer.addEventListener('mouseenter', () => {
+    clearInterval(autoPlayInterval);
+});
+
+// Retomar o auto-play ao tirar o mouse do carrossel
+carouselContainer.addEventListener('mouseleave', () => {
+    startAutoPlay();
+});
+
+// Inicializa tudo quando a página é carregada
+document.addEventListener('DOMContentLoaded', () => {
+    setSlidePosition();
+    createDots();
+    startAutoPlay(); // Inicia o auto-play automaticamente
+});
+
+// Atualiza o layout do carrossel ao redimensionar a janela
+window.addEventListener('resize', setSlidePosition);
