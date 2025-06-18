@@ -40,10 +40,11 @@ body {
 
 .carousel-slide img {
     width: 100%;
-    height: 400px; /* Altura fixa para consistência */
-    object-fit: cover; /* Garante que a imagem cubra o espaço, cortando se necessário */
+    height: 400px; /* Mantemos uma altura máxima para o carrossel */
+    object-fit: contain; /* A imagem se ajusta dentro do container, sem ser cortada. Pode haver barras laterais ou superior/inferior se a proporção não for a mesma do container. */
     display: block;
     border-radius: 12px;
+    background-color: #f0f0f0; /* COR DE FUNDO: Adiciona um fundo claro para preencher o espaço extra que o 'contain' pode deixar */
 }
 
 .slide-text {
@@ -131,7 +132,7 @@ body {
 /* Responsividade */
 @media (max-width: 768px) {
     .carousel-slide img {
-        height: 250px;
+        height: 250px; /* Altura ajustada para telas menores */
     }
     .slide-text {
         font-size: 1em;
