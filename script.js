@@ -14,11 +14,12 @@ const setSlidePosition = () => {
     // Garante que o carrossel funciona mesmo com poucas imagens
     if (slides.length === 0) return;
 
-    slideWidth = slides[0].getBoundingClientRect().width; // Pega a largura do primeiro slide
+    slideWidth = carouselContainer.getBoundingClientRect().width; // Pega a largura do CONTAINER para ser mais preciso
     
     // Posiciona cada slide lado a lado
     slides.forEach((slide, index) => {
         slide.style.left = slideWidth * index + 'px';
+        slide.style.width = slideWidth + 'px'; // Garante que cada slide tenha a largura do container
     });
 
     // Move o track para exibir o slide inicial (currentSlideIndex)
@@ -91,6 +92,7 @@ const startAutoPlay = () => {
 
 // Evento de clique no botão "Próximo"
 nextButton.addEventListener('click', () => {
+    if (slides.length <= 1) return; // Não faz nada se houver 1 ou 0 slides
     let nextIndex = currentSlideIndex + 1;
     if (nextIndex >= slides.length) {
         nextIndex = 0; // Volta para o primeiro slide
@@ -101,6 +103,7 @@ nextButton.addEventListener('click', () => {
 
 // Evento de clique no botão "Anterior"
 prevButton.addEventListener('click', () => {
+    if (slides.length <= 1) return; // Não faz nada se houver 1 ou 0 slides
     let prevIndex = currentSlideIndex - 1;
     if (prevIndex < 0) {
         prevIndex = slides.length - 1; // Vai para o último slide
@@ -111,6 +114,7 @@ prevButton.addEventListener('click', () => {
 
 // Evento de clique nos pontos de navegação
 dotsContainer.addEventListener('click', e => {
+    if (slides.length <= 1) return; // Não faz nada se houver 1 ou 0 slides
     if (e.target.classList.contains('dot')) {
         const targetIndex = parseInt(e.target.dataset.index);
         moveToSlide(carouselTrack, targetIndex);
@@ -133,13 +137,13 @@ document.addEventListener('DOMContentLoaded', () => {
     setSlidePosition(); // Define a posição inicial dos slides
     createDots(); // Cria os pontos de navegação
     startAutoPlay(); // Inicia o auto-play
+    
     // Esconde os botões de navegação se houver apenas um slide
     if (slides.length <= 1) {
         nextButton.style.display = 'none';
         prevButton.style.display = 'none';
-        // dotsContainer display já é tratado em createDots()
     } else {
-        nextButton.style.display = 'flex'; // Certifica que aparecem se houver mais de um
+        nextButton.style.display = 'flex'; // Garante que apareçam se houver mais de um
         prevButton.style.display = 'flex';
     }
 });
