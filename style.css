@@ -30,10 +30,10 @@ body {
 .carousel-slide {
     min-width: 100%; /* Garante que cada slide ocupe 100% da largura do track */
     box-sizing: border-box; /* Inclui padding e borda na largura total */
-    position: relative; /* Para posicionar o texto sobre a imagem */
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    display: flex; /* Mude para flexbox */
+    flex-direction: column; /* Empilha os itens verticalmente */
+    align-items: center; /* Centraliza horizontalmente */
+    justify-content: flex-start; /* Alinha a imagem ao topo */
     overflow: hidden; /* Garante que a imagem não vaze */
 }
 
@@ -46,23 +46,25 @@ body {
 
 /* Estilo para o texto do slide */
 .slide-text {
-    position: absolute;
-    bottom: 0;
-    left: 0;
+    /* Removido position: absolute, bottom: 0, left: 0 */
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.6); /* Fundo semi-transparente para o texto */
+    background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para o texto */
     color: #fff;
     padding: 15px 20px;
     text-align: center;
     font-size: 1.2em;
     font-weight: bold;
     box-sizing: border-box;
+    /* Adicionado para garantir que o texto não se sobreponha */
+    flex-shrink: 0; /* Impede que o texto encolha */
 }
 
 .carousel-slide a {
     text-decoration: none; /* Remove sublinhado dos links */
     color: inherit; /* Mantém a cor do texto definida pelo .slide-text */
-    display: block; /* Faz com que o link ocupe todo o slide */
+    display: flex; /* Mude para flexbox para que o link envolva imagem e texto */
+    flex-direction: column; /* Empilha a imagem e o texto dentro do link */
+    width: 100%; /* Ocupa a largura total do slide */
 }
 
 
