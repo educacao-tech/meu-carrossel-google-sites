@@ -41,8 +41,9 @@ body {
     width: 100%;
     height: auto; /* A altura se ajusta automaticamente para manter a proporção */
     max-height: 400px; /* Define uma altura máxima para a imagem */
-    object-fit: cover; /* Garante que a imagem preencha o espaço, cortando se necessário */
+    object-fit: contain; /* ESSA É A MUDANÇA PRINCIPAL: Garante que a imagem inteira seja visível, adaptando-se ao espaço. Pode gerar barras se a proporção for diferente. */
     display: block;
+    background-color: #f0f2f5; /* Cor de fundo para as possíveis barras */
 }
 
 /* Estilo para o texto do slide */
