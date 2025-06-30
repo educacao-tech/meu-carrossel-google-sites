@@ -46,7 +46,6 @@ body {
 
 /* Estilo para o texto do slide */
 .slide-text {
-    /* Removido position: absolute, bottom: 0, left: 0 */
     width: 100%;
     background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para o texto */
     color: #fff;
@@ -55,8 +54,8 @@ body {
     font-size: 1.2em;
     font-weight: bold;
     box-sizing: border-box;
-    /* Adicionado para garantir que o texto não se sobreponha */
-    flex-shrink: 0; /* Impede que o texto encolha */
+    flex-shrink: 0;
+    margin-top: 10px; /* Margem superior para separar da imagem */
 }
 
 .carousel-slide a {
