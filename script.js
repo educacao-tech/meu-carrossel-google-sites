@@ -6,7 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const dotsContainer = document.querySelector('.carousel-dots');
 
     let currentIndex = 0;
-    let slideWidth = slides[0].clientWidth; // Largura de um slide
+    // Recalcula a largura do slide em tempo real
+    const getSlideWidth = () => slides[0].clientWidth; 
+    let slideWidth = getSlideWidth();
     let autoSlideInterval;
 
     // Função para atualizar a posição do carrossel
@@ -87,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ajusta a largura dos slides em caso de redimensionamento da janela
     window.addEventListener('resize', () => {
-        slideWidth = slides[0].clientWidth;
+        slideWidth = getSlideWidth(); // Recalcula a largura ao redimensionar
         updateCarousel(); // Reajusta a posição para a nova largura
     });
 
