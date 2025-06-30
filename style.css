@@ -39,8 +39,9 @@ body {
 
 .carousel-slide img {
     width: 100%;
-    height: 450px; /* Altura fixa para as imagens */
-    object-fit: cover; /* Garante que a imagem cubra a área sem distorção */
+    height: auto; /* A altura se ajusta automaticamente para manter a proporção */
+    max-height: 400px; /* Define uma altura máxima para a imagem */
+    object-fit: cover; /* Garante que a imagem preencha o espaço, cortando se necessário */
     display: block;
 }
 
@@ -55,7 +56,7 @@ body {
     font-weight: bold;
     box-sizing: border-box;
     flex-shrink: 0;
-    margin-top: 10px; /* Margem superior para separar da imagem */
+    margin-top: 10px; /* Adiciona uma margem superior de 10px para separar da imagem */
 }
 
 .carousel-slide a {
@@ -135,7 +136,8 @@ body {
     }
 
     .carousel-slide img {
-        height: 300px; /* Ajusta a altura da imagem para telas menores */
+        height: auto; /* Mantém a altura automática */
+        max-height: 250px; /* Ajusta a altura máxima da imagem para telas menores */
     }
 
     .slide-text {
@@ -153,7 +155,8 @@ body {
 
 @media (max-width: 480px) {
     .carousel-slide img {
-        height: 200px;
+        height: auto; /* Mantém a altura automática */
+        max-height: 180px; /* Ajusta a altura máxima da imagem para telas muito pequenas */
     }
 
     .slide-text {
