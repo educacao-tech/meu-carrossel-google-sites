@@ -14,7 +14,7 @@ body {
     position: relative;
     width: 90%; /* Ajuste a largura conforme necessário */
     max-width: 800px; /* Largura máxima para telas maiores */
-    overflow: hidden;
+    overflow: hidden; /* Mantém o overflow para o carrossel */
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     background-color: #fff;
@@ -34,14 +34,14 @@ body {
     flex-direction: column; /* Empilha os itens verticalmente */
     align-items: center; /* Centraliza horizontalmente */
     justify-content: flex-start; /* Alinha a imagem ao topo */
-    overflow: hidden; /* Garante que a imagem não vaze */
+    /* Removido overflow: hidden daqui para não cortar a imagem se ela for maior que o slide */
 }
 
 .carousel-slide img {
     width: 100%;
-    height: auto; /* A altura se ajusta automaticamente para manter a proporção */
-    max-height: 400px; /* Define uma altura máxima para a imagem */
-    object-fit: contain; /* ESSA É A PROPRIEDADE PARA AJUSTE PROPORCIONAL E COMPLETO */
+    height: auto; /* ESSA É A MUDANÇA PRINCIPAL: A altura se ajusta automaticamente para manter a proporção */
+    /* Removido max-height para permitir que a imagem defina sua própria altura proporcionalmente */
+    object-fit: contain; /* Garante que a imagem inteira seja visível, adaptando-se ao espaço */
     display: block;
     background-color: #f0f2f5; /* Cor de fundo para as possíveis barras, você pode mudar */
 }
@@ -136,9 +136,9 @@ body {
         border-radius: 0;
     }
 
+    /* Removido max-height do img dentro da media query também */
     .carousel-slide img {
-        height: auto; /* Mantém a altura automática */
-        max-height: 250px; /* Ajusta a altura máxima da imagem para telas menores */
+        height: auto;
     }
 
     .slide-text {
@@ -156,8 +156,7 @@ body {
 
 @media (max-width: 480px) {
     .carousel-slide img {
-        height: auto; /* Mantém a altura automática */
-        max-height: 180px; /* Ajusta a altura máxima da imagem para telas muito pequenas */
+        height: auto;
     }
 
     .slide-text {
