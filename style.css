@@ -1,4 +1,3 @@
-/* Estilos básicos para o corpo da página */
 body {
     font-family: Arial, sans-serif;
     display: flex;
@@ -6,94 +5,85 @@ body {
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #f0f2f5;
+    background-color: #f0f0f0;
+    box-sizing: border-box;
 }
 
-/* Container principal do carrossel */
 .carousel-container {
     position: relative;
     width: 90%; /* Ajuste a largura conforme necessário */
-    max-width: 800px; /* Largura máxima para telas maiores */
-    overflow: hidden; /* Mantém o overflow para o carrossel */
+    max-width: 800px; /* Largura máxima para o carrossel */
+    overflow: hidden;
     border-radius: 8px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     background-color: #fff;
 }
 
-/* Contêiner dos slides, onde eles se movem */
 .carousel-track {
     display: flex;
-    transition: transform 0.5s ease-in-out; /* Suavidade na transição dos slides */
+    transition: transform 0.5s ease-in-out;
+    width: 100%; /* Garante que o track ocupe a largura do container */
 }
 
-/* Estilo individual de cada slide */
 .carousel-slide {
-    min-width: 100%; /* Garante que cada slide ocupe 100% da largura do track */
-    box-sizing: border-box; /* Inclui padding e borda na largura total */
-    display: flex; /* Mude para flexbox */
-    flex-direction: column; /* Empilha os itens verticalmente */
-    align-items: center; /* Centraliza horizontalmente */
-    justify-content: flex-start; /* Alinha a imagem ao topo */
-    position: relative; /* Necessário para posicionar o spinner */
+    min-width: 100%; /* Cada slide ocupa a largura total do container */
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column; /* Para alinhar imagem e texto */
+    align-items: center;
+    justify-content: center;
+}
+
+.carousel-slide a {
+    display: block; /* Garante que o link ocupe todo o slide para clique */
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
 }
 
 .carousel-slide img {
     width: 100%;
-    height: auto; /* A altura se ajusta automaticamente para manter a proporção */
-    /* Removido max-height para permitir que a imagem defina sua própria altura proporcionalmente */
-    object-fit: contain; /* Garante que a imagem inteira seja visível, adaptando-se ao espaço. Pode gerar barras se a proporção for diferente. */
+    height: auto; /* Mantém a proporção da imagem */
     display: block;
-    background-color: #f0f2f5; /* Cor de fundo para as possíveis barras, você pode mudar */
-    transition: opacity 0.3s ease-in-out; /* Adiciona transição para a imagem aparecer suavemente */
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
-/* Estilo para o texto do slide */
 .slide-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
     width: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para o texto */
-    color: #fff;
+    background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para o texto */
+    color: white;
     padding: 15px 20px;
     text-align: center;
     font-size: 1.2em;
     font-weight: bold;
     box-sizing: border-box;
-    flex-shrink: 0;
-    margin-top: 10px; /* Adiciona uma margem superior de 10px para separar da imagem */
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
-.carousel-slide a {
-    text-decoration: none; /* Remove sublinhado dos links */
-    color: inherit; /* Mantém a cor do texto definida pelo .slide-text */
-    display: flex; /* Mude para flexbox para que o link envolva imagem e texto */
-    flex-direction: column; /* Empilha a imagem e o texto dentro do link */
-    width: 100%; /* Ocupa a largura total do slide */
-    height: 100%; /* Garante que o link preencha a altura do slide */
-}
-
-
-/* Estilos para os botões de navegação (anterior/próximo) */
+/* Navegação */
 .carousel-button {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
+    color: white;
     border: none;
     padding: 10px 15px;
     cursor: pointer;
-    font-size: 1.8em;
+    font-size: 1.5em;
     border-radius: 50%;
-    z-index: 10; /* Garante que os botões fiquem acima dos slides */
+    z-index: 10;
     transition: background-color 0.3s ease;
-    display: flex; /* Para centralizar o ícone */
-    justify-content: center;
-    align-items: center;
-    width: 40px; /* Largura e altura para fazer um círculo perfeito */
-    height: 40px;
 }
 
 .carousel-button:hover {
-    background-color: rgba(0, 0, 0, 0.7);
+    background-color: rgba(0, 0, 0, 0.8);
 }
 
 .carousel-button.prev {
@@ -104,14 +94,14 @@ body {
     right: 10px;
 }
 
-/* Estilos para os indicadores de slide (dots) */
+/* Pontos de navegação */
 .carousel-dots {
     position: absolute;
-    bottom: 15px;
+    bottom: 10px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px; /* Espaço entre os dots */
+    gap: 8px;
     z-index: 10;
 }
 
@@ -121,87 +111,49 @@ body {
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* Borda sutil para os dots */
+    transition: background-color 0.3s ease;
+    border: 1px solid rgba(0, 0, 0, 0.2); /* Borda para visibilidade em fundos claros */
 }
 
 .dot.active {
-    background-color: #fff;
-    transform: scale(1.2); /* Aumenta o dot ativo */
-    border-color: #fff;
+    background-color: #ffffff;
+    border: 1px solid #000;
 }
 
-/* Estilo para o Spinner de Carregamento */
+/* Spinner (opcional, se quiser um indicador de carregamento) */
 .spinner {
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #3498db; /* Cor principal do spinner */
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite; /* Animação de rotação */
-    position: absolute; /* Posiciona o spinner no centro do slide */
+    position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    z-index: 5; /* Garante que o spinner fique acima da imagem enquanto carrega */
-    display: none; /* Inicia oculto */
+    border: 4px solid rgba(0, 0, 0, 0.1);
+    border-top: 4px solid #3498db;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    animation: spin 1s linear infinite;
+    display: none; /* Escondido por padrão, pode ser mostrado com JS */
 }
 
-/* Animação de rotação para o spinner */
 @keyframes spin {
     0% { transform: translate(-50%, -50%) rotate(0deg); }
     100% { transform: translate(-50%, -50%) rotate(360deg); }
 }
 
-/* Quando o slide está carregando, oculta a imagem e mostra o spinner */
-.carousel-slide.loading img {
-    opacity: 0;
-}
-.carousel-slide.loading .spinner {
-    display: block;
-}
-
-
 /* Responsividade básica */
-@media (max-width: 768px) {
-    .carousel-container {
-        width: 100%;
-        border-radius: 0;
-    }
-
-    .carousel-slide img {
-        height: auto; /* Mantém a altura automática */
-        /* Removido max-height para responsividade total da imagem */
+@media (max-width: 600px) {
+    .carousel-button {
+        padding: 8px 12px;
+        font-size: 1.2em;
     }
 
     .slide-text {
         font-size: 1em;
-        padding: 10px 15px;
+        padding: 10px;
     }
 
-    .carousel-button {
-        padding: 8px 12px;
-        font-size: 1.5em;
-        width: 35px;
-        height: 35px;
-    }
-}
-
-@media (max-width: 480px) {
-    .carousel-slide img {
-        height: auto; /* Mantém a altura automática */
-        /* Removido max-height para responsividade total da imagem */
-    }
-
-    .slide-text {
-        font-size: 0.9em;
-        padding: 8px 10px;
-    }
-
-    .carousel-button {
-        padding: 6px 10px;
-        font-size: 1.2em;
-        width: 30px;
-        height: 30px;
+    .dot {
+        width: 10px;
+        height: 10px;
     }
 }
