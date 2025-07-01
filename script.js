@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     generateDots();
 
     // Opcional: Adiciona auto-play (descomente para ativar)
-    // setInterval(() => {
-    //     nextButton.click();
-    // }, 5000); // Muda a cada 5 segundos
+     setInterval(() => {
+         nextButton.click();
+     }, 5000); // Muda a cada 5 segundos
 });
