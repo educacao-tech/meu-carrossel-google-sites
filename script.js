@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Adicionado loading="lazy" para performance
             // O HTML é concatenado na variável slidesHTML
             slidesHTML += `
-                <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}" aria-hidden="true">
+                <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
                     <a href="${newsItem.link}" target="_blank" class="slide-link" aria-label="Leia a notícia: ${newsItem.title}" tabindex="-1">
                         <div class="slide-date">${newsItem.displayDate}</div>
                         <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
@@ -89,6 +89,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const slideWidth = slides[0].offsetWidth;
         const newTransform = -targetIndex * slideWidth;
         carouselTrack.style.transform = `translateX(${newTransform}px)`;
+
+        // Gerencia a classe ativa e atributos ARIA para animações e acessibilidade
+        slides.forEach((slide, index) => {
+            const isActive = index === targetIndex;
+            slide.classList.toggle('is-active', isActive);
+            slide.setAttribute('aria-hidden', !isActive);
+        });
 
         currentIndex = targetIndex;
         updateDots(targetIndex);

@@ -23,7 +23,7 @@ body {
     overflow: hidden; /* Esconde os slides que não estão ativos */
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    background-color: #fff;
+    background-color: #fdfdfd;
 }
 
 .carousel-track {
@@ -35,10 +35,6 @@ body {
     flex: 0 0 100%;
     max-width: 100%;
     box-sizing: border-box;
-}
-
-.carousel-slide.is-active {
-    /* Esta regra não é mais necessária para o efeito de slide */
 }
 
 .slide-image {
@@ -65,6 +61,7 @@ body {
     background-color: #ffffff;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+    position: relative; /* Torna este o container de referência para o título expandido */
 }
 
 .slide-link {
@@ -82,20 +79,51 @@ body {
     color: #333; /* Cor do texto para fundo claro */
     background: none; /* Remove o gradiente */
     padding: 0;
-    font-size: 1.4em;
+    font-size: 1.1em; /* Fonte reduzida para melhor ajuste em uma linha */
     font-weight: 600;
     box-sizing: border-box;
+    position: relative; /* Necessário para o efeito de hover */
     transition: background-color 0.3s ease;
     /* Limita o título a 1 linha e adiciona "..." */
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    text-align: center; /* Centraliza o texto do título */
 }
 
 .slide-link:hover .slide-title {
     color: #007bff; /* Muda a cor do título ao passar o mouse */
+    -webkit-line-clamp: initial; /* Remove o limite de linhas */
+    white-space: normal; /* Permite que o texto quebre em várias linhas */
+    overflow: visible;
+    position: absolute; /* Faz o título flutuar sobre o conteúdo */
+    bottom: 15px; /* Alinha com a parte de baixo do seu container */
+    left: 10px;
+    right: 10px;
+    background-color: #ffffff; /* Adiciona um fundo para legibilidade */
+    padding: 15px 20px; /* Adiciona padding ao título expandido */
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Adiciona uma sombra */
+    z-index: 20; /* Garante que fique na frente de outros elementos */
+    text-align: left; /* Alinha à esquerda quando expandido para melhor leitura */
 }
+
+/* Animação para o conteúdo do slide ativo */
+.slide-date, .slide-title {
+    opacity: 0;
+    transform: translateY(15px);
+    transition: opacity 0.5s ease-out 0.3s, transform 0.5s ease-out 0.3s;
+}
+
+.carousel-slide.is-active .slide-date,
+.carousel-slide.is-active .slide-title {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Atraso na animação do título para um efeito escalonado */
+.carousel-slide.is-active .slide-title { transition-delay: 0.4s; }
 
 /* Navegação */
 .carousel-button {
@@ -111,11 +139,12 @@ body {
     font-size: 1.5em;
     border-radius: 50%;
     z-index: 10;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 .carousel-button:hover {
     background-color: rgba(0, 0, 0, 0.8);
+    transform: translateY(-50%) scale(1.1); /* Efeito de escala no hover */
 }
 
 .carousel-button.prev {
@@ -211,15 +240,10 @@ body {
     }
 
     .slide-title {
-        font-size: 1.1em;
+        font-size: 1em; /* Fonte reduzida para mobile */
     }
 
     .carousel-button {
         top: 120px; /* Posição ajustada para a altura da imagem no mobile */
     }
-}
-
-.carousel-slide.is-active {
-    opacity: 1; /* Mostra o slide ativo */
-    z-index: 2; /* Coloca o slide ativo na frente */
 }
