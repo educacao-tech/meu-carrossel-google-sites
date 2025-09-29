@@ -9,6 +9,13 @@ body {
     box-sizing: border-box;
 }
 
+.content-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 25px; /* Espaço entre o carrossel e o botão */
+}
+
 .carousel-container {
     position: relative;
     width: 90%; /* Ajuste a largura conforme necessário */
@@ -17,31 +24,26 @@ body {
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     background-color: #fff;
-    min-height: 450px; /* Garante que o container tenha altura para o conteúdo */
 }
 
 .carousel-track {
-    position: relative; /* Necessário para empilhar os slides */
-    height: 100%;
-    /* display: flex; */ /* Não é mais flex, os slides serão empilhados */
-    /* transition: transform 0.5s ease-in-out; */
+    display: flex;
+    transition: transform 0.5s ease-in-out;
 }
 
 .carousel-slide {
-    position: absolute; /* Empilha os slides */
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+    flex: 0 0 100%;
+    max-width: 100%;
     box-sizing: border-box;
-    opacity: 0; /* Esconde os slides por padrão */
-    transition: opacity 0.6s ease-in-out; /* Anima a opacidade */
-    z-index: 1; /* Coloca os slides inativos abaixo */
+}
+
+.carousel-slide.is-active {
+    /* Esta regra não é mais necessária para o efeito de slide */
 }
 
 .slide-image {
     width: 100%;
-    height: 300px; /* Altura maior para o formato de slide único */
+    height: 280px; /* Altura da imagem ajustada para um visual mais compacto */
     object-fit: contain; /* Mostra a imagem inteira dentro do container */
     background-color: #f0f2f5; /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
@@ -59,7 +61,7 @@ body {
 }
 
 .slide-content {
-    padding: 15px 20px; /* Espaçamento para o conteúdo textual */
+    padding: 15px 20px 45px; /* Aumenta o padding inferior para dar espaço aos dots */
     background-color: #ffffff;
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
@@ -98,7 +100,7 @@ body {
 /* Navegação */
 .carousel-button {
     position: absolute;
-    top: 40%; /* Ajusta a posição para ficar sobre a imagem */
+    top: 160px; /* Posição ajustada para a nova altura da imagem */
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
@@ -153,6 +155,23 @@ body {
     border-radius: 10px; /* Transforma em pílula */
 }
 
+/* Botão "Mais Notícias" */
+.more-news-button {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.more-news-button:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
 /* Spinner (opcional, se quiser um indicador de carregamento) */
 .spinner {
     position: absolute;
@@ -175,12 +194,12 @@ body {
 
 /* Responsividade básica */
 @media (max-width: 600px) {
-    .carousel-container {
-        min-height: 350px; /* Altura menor para o mobile */
+    .slide-image {
+        height: 200px; /* Altura da imagem ajustada para mobile */
     }
 
-    .slide-image {
-        height: 220px; /* Altura ajustada para mobile */
+    .carousel-container {
+        min-height: 340px; /* Altura ajustada para mobile */
     }
 
     .carousel-button.prev {
@@ -196,7 +215,7 @@ body {
     }
 
     .carousel-button {
-        top: 100px; /* Posição ajustada para a altura da imagem no mobile (220px / 2) */
+        top: 120px; /* Posição ajustada para a altura da imagem no mobile */
     }
 }
 

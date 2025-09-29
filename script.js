@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. SELETORES E VARIÁVEIS GLOBAIS ---
     const carouselContainer = document.querySelector('.carousel-container');
     const carouselTrack = document.querySelector('.carousel-track');
+    const carouselCounter = document.querySelector('.carousel-counter');
     const prevButton = document.querySelector('.carousel-button.prev');
     const nextButton = document.querySelector('.carousel-button.next');
     const carouselDotsContainer = document.querySelector('.carousel-dots');
@@ -34,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Adicionado loading="lazy" para performance
             // O HTML é concatenado na variável slidesHTML
             slidesHTML += `
-                <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
+                <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}" aria-hidden="true">
                     <a href="${newsItem.link}" target="_blank" class="slide-link" aria-label="Leia a notícia: ${newsItem.title}" tabindex="-1">
                         <div class="slide-date">${newsItem.displayDate}</div>
                         <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
@@ -56,6 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const dot = document.createElement('button'); // Usar <button> é melhor para acessibilidade
             dot.classList.add('dot');
             dot.setAttribute('role', 'tab');
+            dot.setAttribute('aria-controls', slides[i].id); // CORREÇÃO: Usar o ID do slide correspondente
             dot.setAttribute('aria-label', `Ir para a notícia ${i + 1}`);
             dot.addEventListener('click', () => {
                 moveTo(i);
@@ -68,23 +70,25 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza a aparência do ponto ativo
     const updateDots = (targetIndex) => {
         const dots = Array.from(carouselDotsContainer.children);
-        dots.forEach((dot, index) => dot.classList.toggle('active', index === targetIndex));
+        dots.forEach((dot, index) => {
+            dot.classList.toggle('active', index === targetIndex);
+            dot.setAttribute('aria-selected', index === targetIndex ? 'true' : 'false');
+            dot.setAttribute('aria-current', index === targetIndex ? 'true' : 'false');
+        });
+    };
+
+    // Atualiza o contador de slides
+    const updateCounter = (current, total) => {
+        if (carouselCounter) {
+            carouselCounter.textContent = `${current + 1} / ${total}`;
+        }
     };
 
     // Move o carrossel para o índice alvo
     const moveTo = (targetIndex) => {
-        // Lógica para transição de FADE
-        slides.forEach((slide, index) => {
-            slide.classList.remove('is-active');
-            if (index === targetIndex) {
-                slide.classList.add('is-active');
-            }
-        });
-
-        // A lógica de slide (translateX) não é mais necessária para o fade
-        // const slideWidth = slides[0].offsetWidth;
-        // const newTransform = -targetIndex * slideWidth;
-        // carouselTrack.style.transform = `translateX(${newTransform}px)`;
+        const slideWidth = slides[0].offsetWidth;
+        const newTransform = -targetIndex * slideWidth;
+        carouselTrack.style.transform = `translateX(${newTransform}px)`;
 
         currentIndex = targetIndex;
         updateDots(targetIndex);
@@ -131,6 +135,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         generateDots();
+        // O moveTo(0) já chama updateCounter e updateDots
         moveTo(0); // Posiciona no slide inicial
 
         // Event Listeners para os botões
@@ -147,10 +152,9 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Ajusta a posição do carrossel ao redimensionar a janela
-        // A lógica de resize não é mais necessária para o efeito de fade
-        // window.addEventListener('resize', debounce(() => {
-        //     moveTo(currentIndex);
-        // }));
+        window.addEventListener('resize', debounce(() => {
+            moveTo(currentIndex);
+        }));
 
         // Melhoria: Pausa o autoplay ao passar o mouse
         carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
