@@ -29,20 +29,21 @@ body {
     box-sizing: border-box;
     position: relative;
     display: grid; /* Usando grid para layout mais flexível */
-    grid-template-columns: 40% 60%; /* Imagem 40%, Conteúdo 60% */
-    align-items: stretch;
+    grid-template-columns: max-content 1fr; /* A imagem define sua largura, o texto ocupa o resto */
+    align-items: center; /* Centraliza verticalmente para um layout mais equilibrado */
     background-color: #ffffff;
 }
 
 .slide-image {
     width: 100%;
-    height: 100%;
-    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+    height: auto; /* Altura automática para manter a proporção */
+    max-width: 320px; /* Define uma largura máxima para a imagem não ficar muito grande */
+    object-fit: contain; /* Garante que a imagem inteira seja visível dentro dos limites */
     display: block;
 }
 
 .slide-content {
-    padding: 20px 25px;
+    padding: 25px 30px;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -55,11 +56,25 @@ body {
 }
 
 .slide-title {
-    font-size: 1.4em;
+    font-size: 1.5em;
     font-weight: 600;
     color: #333;
     margin: 0 0 15px 0;
     line-height: 1.3;
+}
+
+/* Animação para o conteúdo do slide ativo */
+.slide-date, .slide-title, .read-more-btn {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
+}
+
+.carousel-slide.is-active .slide-date,
+.carousel-slide.is-active .slide-title,
+.carousel-slide.is-active .read-more-btn {
+    opacity: 1;
+    transform: translateY(0);
 }
 
 .read-more-btn {
@@ -73,6 +88,10 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
     align-self: flex-start; /* Alinha o botão à esquerda */
 }
+/* Atraso na animação dos elementos para um efeito escalonado */
+.carousel-slide.is-active .slide-title { transition-delay: 0.1s; }
+.carousel-slide.is-active .read-more-btn { transition-delay: 0.2s; }
+
 
 .read-more-btn:hover {
     background-color: #0056b3;
@@ -131,9 +150,10 @@ body {
 }
 
 .dot.active {
-    background-color: white;
-    border: 1px solid #000;
-    transform: scale(1.2);
+    background-color: #007bff;
+    border-color: #007bff;
+    width: 28px; /* Expande a largura do ponto ativo */
+    border-radius: 10px; /* Transforma em pílula */
 }
 
 /* Spinner (opcional, se quiser um indicador de carregamento) */

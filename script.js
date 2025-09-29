@@ -22,12 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        let slidesHTML = '';
         publishedNews.forEach((newsItem, index) => {
             const slideId = `slide${index + 1}`;
             const slideTitleId = `${slideId}-title`;
-            const slideHTML = `
+            // Adicionado loading="lazy" para performance
+            // O HTML é concatenado na variável slidesHTML
+            slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
-                    <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}">
+                    <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
                     <div class="slide-content">
                         <p class="slide-date">${newsItem.displayDate}</p>
                         <h3 class="slide-title" id="${slideTitleId}">${newsItem.title}</h3>
@@ -35,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            carouselTrack.innerHTML += slideHTML;
         });
+        carouselTrack.innerHTML = slidesHTML; // Inserção única no DOM
         slides = Array.from(carouselTrack.children);
     };
 
@@ -66,6 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const moveTo = (targetIndex) => {
         const targetSlide = slides[targetIndex];
         carouselTrack.style.transform = `translateX(-${targetSlide.offsetLeft}px)`;
+
+        // Remove a classe ativa do slide anterior e adiciona ao novo
+        slides.forEach(slide => slide.classList.remove('is-active'));
+        slides[targetIndex].classList.add('is-active');
+
         currentIndex = targetIndex;
         updateDots(targetIndex);
     };
@@ -122,6 +130,10 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', () => {
             moveTo(currentIndex);
         });
+
+        // Melhoria: Pausa o autoplay ao passar o mouse
+        carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+        carouselContainer.addEventListener('mouseleave', () => resetAutoPlay());
 
         // Inicia o auto-play
         resetAutoPlay();
