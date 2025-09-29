@@ -17,19 +17,26 @@ body {
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     background-color: #fff;
+    min-height: 450px; /* Garante que o container tenha altura para o conteúdo */
 }
 
 .carousel-track {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
+    position: relative; /* Necessário para empilhar os slides */
+    height: 100%;
+    /* display: flex; */ /* Não é mais flex, os slides serão empilhados */
+    /* transition: transform 0.5s ease-in-out; */
 }
 
 .carousel-slide {
-    flex: 0 0 100%; /* Cada slide ocupa 100% do espaço */
-    max-width: 100%;
+    position: absolute; /* Empilha os slides */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     box-sizing: border-box;
-    /* As regras de transform e opacity não são mais necessárias */
-    transition: none;
+    opacity: 0; /* Esconde os slides por padrão */
+    transition: opacity 0.6s ease-in-out; /* Anima a opacidade */
+    z-index: 1; /* Coloca os slides inativos abaixo */
 }
 
 .slide-image {
@@ -38,6 +45,17 @@ body {
     object-fit: contain; /* Mostra a imagem inteira dentro do container */
     background-color: #f0f2f5; /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
+}
+
+.slide-date {
+    padding: 10px 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    color: #555;
+    background-color: #fff;
+    text-align: right;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
 }
 
 .slide-content {
@@ -66,9 +84,9 @@ body {
     font-weight: 600;
     box-sizing: border-box;
     transition: background-color 0.3s ease;
-    /* Limita o título a 2 linhas e adiciona "..." */
+    /* Limita o título a 1 linha e adiciona "..." */
     display: -webkit-box;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
@@ -80,7 +98,7 @@ body {
 /* Navegação */
 .carousel-button {
     position: absolute;
-    top: 50%;
+    top: 40%; /* Ajusta a posição para ficar sobre a imagem */
     transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
@@ -109,7 +127,7 @@ body {
 /* Pontos de navegação */
 .carousel-dots {
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
@@ -157,6 +175,10 @@ body {
 
 /* Responsividade básica */
 @media (max-width: 600px) {
+    .carousel-container {
+        min-height: 350px; /* Altura menor para o mobile */
+    }
+
     .slide-image {
         height: 220px; /* Altura ajustada para mobile */
     }
@@ -174,6 +196,11 @@ body {
     }
 
     .carousel-button {
-        top: 110px; /* Posição ajustada para a altura da imagem no mobile (220px / 2) */
+        top: 100px; /* Posição ajustada para a altura da imagem no mobile (220px / 2) */
     }
+}
+
+.carousel-slide.is-active {
+    opacity: 1; /* Mostra o slide ativo */
+    z-index: 2; /* Coloca o slide ativo na frente */
 }

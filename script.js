@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
             slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
                     <a href="${newsItem.link}" target="_blank" class="slide-link" aria-label="Leia a notícia: ${newsItem.title}" tabindex="-1">
+                        <div class="slide-date">${newsItem.displayDate}</div>
                         <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
                         <div class="slide-content">
                             <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
@@ -72,16 +73,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Move o carrossel para o índice alvo
     const moveTo = (targetIndex) => {
-        const slideWidth = slides[0].offsetWidth;
-        const newTransform = -targetIndex * slideWidth;
-        carouselTrack.style.transform = `translateX(${newTransform}px)`;
+        // Lógica para transição de FADE
+        slides.forEach((slide, index) => {
+            slide.classList.remove('is-active');
+            if (index === targetIndex) {
+                slide.classList.add('is-active');
+            }
+        });
 
-        // A classe 'active' não é mais necessária para o estilo de slide único
+        // A lógica de slide (translateX) não é mais necessária para o fade
+        // const slideWidth = slides[0].offsetWidth;
+        // const newTransform = -targetIndex * slideWidth;
+        // carouselTrack.style.transform = `translateX(${newTransform}px)`;
 
         currentIndex = targetIndex;
         updateDots(targetIndex);
     };
     
+    // --- Melhoria: Função Debounce ---
+    const debounce = (func, delay = 250) => {
+        let timeoutId;
+        return (...args) => {
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(() => {
+                func.apply(this, args);
+            }, delay);
+        };
+    };
+
     // Reinicia o autoplay
     const resetAutoPlay = () => {
         clearInterval(autoPlayInterval);
@@ -128,9 +147,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Ajusta a posição do carrossel ao redimensionar a janela
-        window.addEventListener('resize', () => {
-            moveTo(currentIndex);
-        });
+        // A lógica de resize não é mais necessária para o efeito de fade
+        // window.addEventListener('resize', debounce(() => {
+        //     moveTo(currentIndex);
+        // }));
 
         // Melhoria: Pausa o autoplay ao passar o mouse
         carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
