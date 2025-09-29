@@ -13,7 +13,7 @@ body {
     position: relative;
     width: 90%; /* Ajuste a largura conforme necessário */
     max-width: 800px; /* Largura máxima para o carrossel */
-    overflow: hidden;
+    overflow: hidden; /* Esconde os slides que não estão ativos */
     border-radius: 8px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     background-color: #fff;
@@ -25,84 +25,63 @@ body {
 }
 
 .carousel-slide {
-    min-width: 100%; /* Cada slide ocupa a largura total do container */
+    flex: 0 0 100%; /* Cada slide ocupa 100% do espaço */
+    max-width: 100%;
     box-sizing: border-box;
-    position: relative;
-    display: grid; /* Usando grid para layout mais flexível */
-    grid-template-columns: max-content 1fr; /* A imagem define sua largura, o texto ocupa o resto */
-    align-items: center; /* Centraliza verticalmente para um layout mais equilibrado */
-    background-color: #ffffff;
+    /* As regras de transform e opacity não são mais necessárias */
+    transition: none;
 }
 
 .slide-image {
     width: 100%;
-    height: auto; /* Altura automática para manter a proporção */
-    max-width: 320px; /* Define uma largura máxima para a imagem não ficar muito grande */
-    object-fit: contain; /* Garante que a imagem inteira seja visível dentro dos limites */
+    height: 300px; /* Altura maior para o formato de slide único */
+    object-fit: contain; /* Mostra a imagem inteira dentro do container */
+    background-color: #f0f2f5; /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
 }
 
 .slide-content {
-    padding: 25px 30px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    padding: 15px 20px; /* Espaçamento para o conteúdo textual */
+    background-color: #ffffff;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
 }
 
-.slide-date {
-    font-size: 0.85em;
-    color: #666;
-    margin: 0 0 8px 0;
+.slide-link {
+    display: block;
+    /* Não precisa de position: relative aqui, pois o título não será sobreposto */
+    text-decoration: none;
+    color: inherit;
+    height: 100%; /* Garante que o link ocupe todo o slide */
+    display: flex; /* Para empilhar imagem e conteúdo */
+    flex-direction: column;
 }
 
 .slide-title {
-    font-size: 1.5em;
+    /* Removido position: absolute e background */
+    color: #333; /* Cor do texto para fundo claro */
+    background: none; /* Remove o gradiente */
+    padding: 0;
+    font-size: 1.4em;
     font-weight: 600;
-    color: #333;
-    margin: 0 0 15px 0;
-    line-height: 1.3;
+    box-sizing: border-box;
+    transition: background-color 0.3s ease;
+    /* Limita o título a 2 linhas e adiciona "..." */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
-/* Animação para o conteúdo do slide ativo */
-.slide-date, .slide-title, .read-more-btn {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-}
-
-.carousel-slide.is-active .slide-date,
-.carousel-slide.is-active .slide-title,
-.carousel-slide.is-active .read-more-btn {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.read-more-btn {
-    display: inline-block;
-    background-color: #007bff;
-    color: white;
-    padding: 10px 18px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    align-self: flex-start; /* Alinha o botão à esquerda */
-}
-/* Atraso na animação dos elementos para um efeito escalonado */
-.carousel-slide.is-active .slide-title { transition-delay: 0.1s; }
-.carousel-slide.is-active .read-more-btn { transition-delay: 0.2s; }
-
-
-.read-more-btn:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
+.slide-link:hover .slide-title {
+    color: #007bff; /* Muda a cor do título ao passar o mouse */
 }
 
 /* Navegação */
 .carousel-button {
     position: absolute;
     top: 50%;
-    transform: translateY(-150%); /* Sobe os botões para não cobrir o texto */
+    transform: translateY(-50%);
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
@@ -120,11 +99,11 @@ body {
 }
 
 .carousel-button.prev {
-    left: 15px;
+    left: 15px; /* Botões dentro do container */
 }
 
 .carousel-button.next {
-    right: 15px;
+    right: 15px; /* Botões dentro do container */
 }
 
 /* Pontos de navegação */
@@ -178,26 +157,23 @@ body {
 
 /* Responsividade básica */
 @media (max-width: 600px) {
-    .carousel-slide {
-        grid-template-columns: 1fr; /* Coluna única: imagem em cima, texto embaixo */
-    }
-
     .slide-image {
-        max-height: 200px; /* Limita a altura da imagem no mobile */
+        height: 220px; /* Altura ajustada para mobile */
     }
 
-    .slide-content {
-        padding: 15px;
+    .carousel-button.prev {
+        left: 10px;
+    }
+
+    .carousel-button.next {
+        right: 10px;
     }
 
     .slide-title {
-        font-size: 1.2em;
+        font-size: 1.1em;
     }
 
     .carousel-button {
-        top: 35%; /* Ajusta a posição dos botões para a área da imagem */
-        transform: translateY(-50%);
-        width: 35px;
-        height: 35px;
+        top: 110px; /* Posição ajustada para a altura da imagem no mobile (220px / 2) */
     }
 }

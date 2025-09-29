@@ -6,8 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.querySelector('.carousel-button.next');
     const carouselDotsContainer = document.querySelector('.carousel-dots');
     let slides = []; // Será preenchido após a geração dos slides
-    let currentIndex = 0;
+    let currentIndex = 0; // Começa no primeiro slide
     let autoPlayInterval = null;
+    // Variáveis para o controle do swipe
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const swipeThreshold = 50; // Mínimo de pixels para considerar um swipe
+
 
     // --- 3. FUNÇÕES DO CARROSSEL ---
 
@@ -30,12 +35,12 @@ document.addEventListener('DOMContentLoaded', () => {
             // O HTML é concatenado na variável slidesHTML
             slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
-                    <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
-                    <div class="slide-content">
-                        <p class="slide-date">${newsItem.displayDate}</p>
-                        <h3 class="slide-title" id="${slideTitleId}">${newsItem.title}</h3>
-                        <a href="${newsItem.link}" target="_blank" class="read-more-btn">${newsItem.readMoreText}</a>
-                    </div>
+                    <a href="${newsItem.link}" target="_blank" class="slide-link" aria-label="Leia a notícia: ${newsItem.title}" tabindex="-1">
+                        <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
+                        <div class="slide-content">
+                            <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
+                        </div>
+                    </a>
                 </div>
             `;
         });
@@ -45,18 +50,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gera os pontos de navegação
     const generateDots = () => {
-        slides.forEach((_, index) => {
+        const numDots = slides.length; // Um ponto por slide
+        for (let i = 0; i < numDots; i++) {
             const dot = document.createElement('button'); // Usar <button> é melhor para acessibilidade
             dot.classList.add('dot');
             dot.setAttribute('role', 'tab');
-            dot.setAttribute('aria-controls', `slide${index + 1}`);
-            dot.setAttribute('aria-label', `Ir para a notícia ${index + 1}`);
+            dot.setAttribute('aria-label', `Ir para a notícia ${i + 1}`);
             dot.addEventListener('click', () => {
-                moveTo(index);
+                moveTo(i);
                 resetAutoPlay();
             });
             carouselDotsContainer.appendChild(dot);
-        });
+        }
     };
 
     // Atualiza a aparência do ponto ativo
@@ -67,12 +72,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Move o carrossel para o índice alvo
     const moveTo = (targetIndex) => {
-        const targetSlide = slides[targetIndex];
-        carouselTrack.style.transform = `translateX(-${targetSlide.offsetLeft}px)`;
+        const slideWidth = slides[0].offsetWidth;
+        const newTransform = -targetIndex * slideWidth;
+        carouselTrack.style.transform = `translateX(${newTransform}px)`;
 
-        // Remove a classe ativa do slide anterior e adiciona ao novo
-        slides.forEach(slide => slide.classList.remove('is-active'));
-        slides[targetIndex].classList.add('is-active');
+        // A classe 'active' não é mais necessária para o estilo de slide único
 
         currentIndex = targetIndex;
         updateDots(targetIndex);
@@ -107,21 +111,18 @@ document.addEventListener('DOMContentLoaded', () => {
             return; // Não inicializa botões e autoplay se não houver slides ou apenas um
         }
 
-        // Define a largura do track para acomodar todos os slides
-        carouselTrack.style.width = `${slides.length * 100}%`;
-
         generateDots();
         moveTo(0); // Posiciona no slide inicial
 
         // Event Listeners para os botões
         prevButton.addEventListener('click', () => {
-            const newIndex = currentIndex === 0 ? slides.length - 1 : currentIndex - 1;
+            const newIndex = currentIndex > 0 ? currentIndex - 1 : slides.length - 1;
             moveTo(newIndex);
             resetAutoPlay();
         });
 
         nextButton.addEventListener('click', () => {
-            const newIndex = currentIndex === slides.length - 1 ? 0 : currentIndex + 1;
+            const newIndex = currentIndex < slides.length - 1 ? currentIndex + 1 : 0;
             moveTo(newIndex);
             resetAutoPlay();
         });
@@ -134,6 +135,40 @@ document.addEventListener('DOMContentLoaded', () => {
         // Melhoria: Pausa o autoplay ao passar o mouse
         carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
         carouselContainer.addEventListener('mouseleave', () => resetAutoPlay());
+
+        // --- Melhoria: Navegação por Teclado ---
+        carouselContainer.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowLeft') {
+                e.preventDefault(); // Previne o scroll da página
+                prevButton.click();
+            } else if (e.key === 'ArrowRight') {
+                e.preventDefault(); // Previne o scroll da página
+                nextButton.click();
+            }
+        });
+
+        // --- Melhoria: Navegação por Gestos (Swipe) ---
+        carouselTrack.addEventListener('touchstart', (e) => {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        carouselTrack.addEventListener('touchend', (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        });
+
+        const handleSwipe = () => {
+            const swipeDistance = touchEndX - touchStartX;
+            if (Math.abs(swipeDistance) < swipeThreshold) return; // Ignora se o swipe for muito curto
+
+            if (swipeDistance < 0) {
+                // Swipe para a esquerda
+                nextButton.click();
+            } else {
+                // Swipe para a direita
+                prevButton.click();
+            }
+        };
 
         // Inicia o auto-play
         resetAutoPlay();
