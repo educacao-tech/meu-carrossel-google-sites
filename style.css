@@ -1,11 +1,11 @@
 body {
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #f0f0f0;
+    background-color: #f4f4f9;
     box-sizing: border-box;
 }
 
@@ -15,66 +15,80 @@ body {
     max-width: 800px; /* Largura máxima para o carrossel */
     overflow: hidden;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
     background-color: #fff;
 }
 
 .carousel-track {
     display: flex;
     transition: transform 0.5s ease-in-out;
-    width: 100%; /* Garante que o track ocupe a largura do container */
 }
 
 .carousel-slide {
     min-width: 100%; /* Cada slide ocupa a largura total do container */
     box-sizing: border-box;
     position: relative;
+    display: grid; /* Usando grid para layout mais flexível */
+    grid-template-columns: 40% 60%; /* Imagem 40%, Conteúdo 60% */
+    align-items: stretch;
+    background-color: #ffffff;
+}
+
+.slide-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Garante que a imagem cubra a área sem distorcer */
+    display: block;
+}
+
+.slide-content {
+    padding: 20px 25px;
     display: flex;
-    flex-direction: column; /* Para alinhar imagem e texto */
-    align-items: center;
+    flex-direction: column;
     justify-content: center;
 }
 
-.carousel-slide a {
-    display: block; /* Garante que o link ocupe todo o slide para clique */
-    text-decoration: none;
-    color: inherit;
-    width: 100%;
+.slide-date {
+    font-size: 0.85em;
+    color: #666;
+    margin: 0 0 8px 0;
 }
 
-.carousel-slide img {
-    width: 100%;
-    height: auto; /* Mantém a proporção da imagem */
-    display: block;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+.slide-title {
+    font-size: 1.4em;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 15px 0;
+    line-height: 1.3;
 }
 
-.slide-text {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    background: rgba(0, 0, 0, 0.7); /* Fundo semi-transparente para o texto */
+.read-more-btn {
+    display: inline-block;
+    background-color: #007bff;
     color: white;
-    padding: 15px 20px;
-    text-align: center;
-    font-size: 1.2em;
+    padding: 10px 18px;
+    border-radius: 5px;
+    text-decoration: none;
     font-weight: bold;
-    box-sizing: border-box;
-    border-bottom-left-radius: 8px;
-    border-bottom-right-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: flex-start; /* Alinha o botão à esquerda */
+}
+
+.read-more-btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px);
 }
 
 /* Navegação */
 .carousel-button {
     position: absolute;
     top: 50%;
-    transform: translateY(-50%);
+    transform: translateY(-150%); /* Sobe os botões para não cobrir o texto */
     background-color: rgba(0, 0, 0, 0.5);
     color: white;
     border: none;
-    padding: 10px 15px;
+    width: 40px;
+    height: 40px;
     cursor: pointer;
     font-size: 1.5em;
     border-radius: 50%;
@@ -87,11 +101,11 @@ body {
 }
 
 .carousel-button.prev {
-    left: 10px;
+    left: 15px;
 }
 
 .carousel-button.next {
-    right: 10px;
+    right: 15px;
 }
 
 /* Pontos de navegação */
@@ -101,7 +115,7 @@ body {
     left: 50%;
     transform: translateX(-50%);
     display: flex;
-    gap: 8px;
+    gap: 10px;
     z-index: 10;
 }
 
@@ -111,13 +125,15 @@ body {
     background-color: rgba(255, 255, 255, 0.5);
     border-radius: 50%;
     cursor: pointer;
-    transition: background-color 0.3s ease;
-    border: 1px solid rgba(0, 0, 0, 0.2); /* Borda para visibilidade em fundos claros */
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    padding: 0; /* Remove padding de botão */
 }
 
 .dot.active {
-    background-color: #ffffff;
+    background-color: white;
     border: 1px solid #000;
+    transform: scale(1.2);
 }
 
 /* Spinner (opcional, se quiser um indicador de carregamento) */
@@ -142,18 +158,26 @@ body {
 
 /* Responsividade básica */
 @media (max-width: 600px) {
-    .carousel-button {
-        padding: 8px 12px;
+    .carousel-slide {
+        grid-template-columns: 1fr; /* Coluna única: imagem em cima, texto embaixo */
+    }
+
+    .slide-image {
+        max-height: 200px; /* Limita a altura da imagem no mobile */
+    }
+
+    .slide-content {
+        padding: 15px;
+    }
+
+    .slide-title {
         font-size: 1.2em;
     }
 
-    .slide-text {
-        font-size: 1em;
-        padding: 10px;
-    }
-
-    .dot {
-        width: 10px;
-        height: 10px;
+    .carousel-button {
+        top: 35%; /* Ajusta a posição dos botões para a área da imagem */
+        transform: translateY(-50%);
+        width: 35px;
+        height: 35px;
     }
 }
