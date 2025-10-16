@@ -1,6 +1,18 @@
 [
     {
         "published": true,
+        "imageUrl": "https://raw.githubusercontent.com/educacao-tech/imagem_noticia/main/agricultura_familiar.jpeg",
+        "altText": "Produtos da agricultura familiar, como vegetais e frutas, expostos em uma cesta.",
+        "date": "2025-10-05",
+        "displayDate": "05 de Outubro de 2025",
+        "instagramLink": "",
+        "link": "https://www.batatais.sp.gov.br/noticias/exemplo-de-noticia-sobre-agricultura-familiar",
+        "title": "Projeto de Agricultura Familiar Enriquece Merenda Escolar na Rede Municipal",
+        "description": "A Secretaria de Educação, em parceria com produtores locais, lança novo projeto para incluir alimentos orgânicos e frescos da agricultura familiar na merenda escolar, promovendo saúde e sustentabilidade.",
+        "readMoreText": "Leia Mais"
+    },
+    {
+        "published": true,
         "imageUrl": "https://raw.githubusercontent.com/educacao-tech/imagem_noticia/cbd2b5a2f8dbe00860af794b266d3e445b1ed5a9/eptv-na-escola/eptv%20na%20escola.jpg",
         "altText": "EMEB Esther Vianna Bologna é finalista do EPTV na Escola 2025 com projeto sustentável e criativo",
         "date": "2025-10-01",

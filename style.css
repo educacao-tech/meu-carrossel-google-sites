@@ -1,11 +1,23 @@
+:root {
+    --primary-color: #007bff;
+    --primary-color-hover: #0056b3;
+    --background-color: #f4f4f9;
+    --card-background-color: #ffffff;
+    --text-color-primary: #333;
+    --text-color-secondary: #555;
+    --image-background-color: #f0f2f5;
+    --shadow-color: rgba(0, 0, 0, 0.1);
+    --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: var(--font-family);
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     margin: 0;
-    background-color: #f4f4f9;
+    background-color: var(--background-color);
     box-sizing: border-box;
 }
 
@@ -22,8 +34,8 @@ body {
     max-width: 800px; /* Largura máxima para o carrossel */
     overflow: hidden; /* Esconde os slides que não estão ativos */
     border-radius: 8px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
-    background-color: #fdfdfd;
+    box-shadow: 0 8px 16px var(--shadow-color);
+    background-color: var(--card-background-color);
 }
 
 .carousel-track {
@@ -40,8 +52,8 @@ body {
 .slide-image {
     width: 100%;
     height: 280px; /* Altura da imagem ajustada para um visual mais compacto */
-    object-fit: contain; /* Mostra a imagem inteira dentro do container */
-    background-color: #f0f2f5; /* Fundo para a área da imagem, para um efeito de moldura */
+    object-fit: contain; /* Garante que a imagem inteira seja visível, sem cortes. Ideal para imagens com texto. */
+    background-color: var(--image-background-color); /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
 }
 
@@ -49,16 +61,16 @@ body {
     padding: 10px 20px;
     font-size: 0.85em;
     font-weight: 600;
-    color: #555;
-    background-color: #fff;
+    color: var(--text-color-secondary);
+    background-color: var(--card-background-color);
     text-align: right;
     border-top-left-radius: 8px;
     border-top-right-radius: 8px;
 }
 
 .slide-content {
-    padding: 15px 20px 45px; /* Aumenta o padding inferior para dar espaço aos dots */
-    background-color: #ffffff;
+    padding: 15px 20px 50px; /* Aumenta o padding inferior para dar espaço aos dots */
+    background-color: var(--card-background-color);
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
     position: relative; /* Torna este o container de referência para o título expandido */
@@ -69,14 +81,11 @@ body {
     /* Não precisa de position: relative aqui, pois o título não será sobreposto */
     text-decoration: none;
     color: inherit;
-    height: 100%; /* Garante que o link ocupe todo o slide */
-    display: flex; /* Para empilhar imagem e conteúdo */
-    flex-direction: column;
 }
 
 .slide-title {
     /* Removido position: absolute e background */
-    color: #333; /* Cor do texto para fundo claro */
+    color: var(--text-color-primary); /* Cor do texto para fundo claro */
     background: none; /* Remove o gradiente */
     padding: 0;
     font-size: 1.1em; /* Fonte reduzida para melhor ajuste em uma linha */
@@ -92,21 +101,24 @@ body {
     text-align: center; /* Centraliza o texto do título */
 }
 
+/* Efeito de hover simples para o título */
 .slide-link:hover .slide-title {
-    color: #007bff; /* Muda a cor do título ao passar o mouse */
-    -webkit-line-clamp: initial; /* Remove o limite de linhas */
-    white-space: normal; /* Permite que o texto quebre em várias linhas */
-    overflow: visible;
-    position: absolute; /* Faz o título flutuar sobre o conteúdo */
-    bottom: 15px; /* Alinha com a parte de baixo do seu container */
-    left: 10px;
-    right: 10px;
-    background-color: #ffffff; /* Adiciona um fundo para legibilidade */
-    padding: 15px 20px; /* Adiciona padding ao título expandido */
-    border-radius: 8px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Adiciona uma sombra */
-    z-index: 20; /* Garante que fique na frente de outros elementos */
-    text-align: left; /* Alinha à esquerda quando expandido para melhor leitura */
+    color: var(--primary-color);
+}
+
+/* Ícone do Instagram */
+.instagram-icon {
+    position: absolute;
+    bottom: 15px;
+    right: 20px;
+    color: #c13584; /* Cor clássica do Instagram */
+    z-index: 5;
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.instagram-icon:hover {
+    transform: scale(1.15);
+    color: #833ab4; /* Um tom mais escuro no hover */
 }
 
 /* Animação para o conteúdo do slide ativo */
@@ -178,8 +190,8 @@ body {
 }
 
 .dot.active {
-    background-color: #007bff;
-    border-color: #007bff;
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
     width: 28px; /* Expande a largura do ponto ativo */
     border-radius: 10px; /* Transforma em pílula */
 }
@@ -187,7 +199,7 @@ body {
 /* Botão "Mais Notícias" */
 .more-news-button {
     display: inline-block;
-    background-color: #007bff;
+    background-color: var(--primary-color);
     color: white;
     padding: 12px 25px;
     border-radius: 8px;
@@ -197,7 +209,7 @@ body {
 }
 
 .more-news-button:hover {
-    background-color: #0056b3;
+    background-color: var(--primary-color-hover);
     transform: translateY(-2px);
 }
 
@@ -208,7 +220,7 @@ body {
     left: 50%;
     transform: translate(-50%, -50%);
     border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid #3498db;
+    border-top: 4px solid var(--primary-color);
     border-radius: 50%;
     width: 30px;
     height: 30px;

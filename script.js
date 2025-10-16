@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 2. SELETORES E VARIÁVEIS GLOBAIS ---
     const carouselContainer = document.querySelector('.carousel-container');
     const carouselTrack = document.querySelector('.carousel-track');
+    const spinner = document.querySelector('.spinner');
     const carouselCounter = document.querySelector('.carousel-counter');
     const prevButton = document.querySelector('.carousel-button.prev');
     const nextButton = document.querySelector('.carousel-button.next');
@@ -25,22 +26,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (publishedNews.length === 0) {
             carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhuma notícia disponível no momento.</p>';
+            if (spinner) spinner.style.display = 'none';
             return;
         }
 
         let slidesHTML = '';
         publishedNews.forEach((newsItem, index) => {
+            // Cria o ícone do Instagram apenas se o link existir
+            const instagramIconHTML = newsItem.instagramLink
+                ? `<a href="${newsItem.instagramLink}" target="_blank" rel="noopener noreferrer" class="instagram-icon" aria-label="Ver no Instagram" onclick="event.stopPropagation()">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                   </a>`
+                : '';
+
             const slideId = `slide${index + 1}`;
             const slideTitleId = `${slideId}-title`;
-            // Adicionado loading="lazy" para performance
-            // O HTML é concatenado na variável slidesHTML
             slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
-                    <a href="${newsItem.link}" target="_blank" class="slide-link" aria-label="Leia a notícia: ${newsItem.title}" tabindex="-1">
+                    <a 
+                        href="${newsItem.link}" 
+                        target="_blank" 
+                        class="slide-link" 
+                        aria-label="Leia a notícia: ${newsItem.title}" 
+                        tabindex="-1"
+                        data-description="${newsItem.description.replace(/"/g, '&quot;')}"
+                        data-read-more="${newsItem.readMoreText}">
                         <div class="slide-date">${newsItem.displayDate}</div>
-                        <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="lazy">
-                        <div class="slide-content">
-                            <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
+                        <div class="slide-body">
+                            <img 
+                                class="slide-image" 
+                                src="${newsItem.imageUrl}" 
+                                alt="${newsItem.altText}" 
+                                loading="lazy"
+                                onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400/f0f2f5/333333?text=Imagem+Indisponível';">
+                            <div class="slide-content">
+                                <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
+                                ${instagramIconHTML}
+                            </div>
                         </div>
                     </a>
                 </div>
@@ -99,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         currentIndex = targetIndex;
         updateDots(targetIndex);
+        updateCounter(targetIndex, slides.length);
     };
     
     // --- Melhoria: Função Debounce ---
@@ -120,12 +143,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 4. INICIALIZAÇÃO E EVENTOS ---
     const init = async () => {
+        if (spinner) spinner.style.display = 'block'; // Mostra o spinner
         try {
             const response = await fetch('news.json');
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const newsData = await response.json();
+            if (spinner) spinner.style.display = 'none'; // Esconde o spinner
             generateCarouselSlides(newsData);
         } catch (error) {
             console.error("Não foi possível carregar as notícias:", error);
@@ -162,10 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
         window.addEventListener('resize', debounce(() => {
             moveTo(currentIndex);
         }));
-
-        // Melhoria: Pausa o autoplay ao passar o mouse
-        carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
-        carouselContainer.addEventListener('mouseleave', () => resetAutoPlay());
 
         // --- Melhoria: Navegação por Teclado ---
         carouselContainer.addEventListener('keydown', (e) => {
