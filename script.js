@@ -57,8 +57,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 class="slide-image" 
                                 src="${newsItem.imageUrl}" 
                                 alt="${newsItem.altText}" 
-                                loading="lazy"
-                                onerror="this.onerror=null; this.src='https://via.placeholder.com/800x400/f0f2f5/333333?text=Imagem+Indisponível';">
+                                loading="lazy">
                             <div class="slide-content">
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
                                 ${instagramIconHTML}
@@ -70,6 +69,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         carouselTrack.innerHTML = slidesHTML; // Inserção única no DOM
         slides = Array.from(carouselTrack.children);
+
+        // Adiciona o tratamento de erro para imagens de forma centralizada
+        slides.forEach(slide => {
+            const img = slide.querySelector('.slide-image');
+            if (img) {
+                img.addEventListener('error', () => {
+                    img.src = 'https://via.placeholder.com/800x400/f0f2f5/333333?text=Imagem+Indisponível';
+                });
+            }
+        });
     };
 
     // Gera os pontos de navegação
@@ -102,7 +111,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza o contador de slides
     const updateCounter = (current, total) => {
         if (carouselCounter) {
-            carouselCounter.textContent = `${current + 1} / ${total}`;
+            const currentTitle = slides[current].querySelector('.slide-title').textContent;
+            carouselCounter.textContent = `Notícia ${current + 1} de ${total}: ${currentTitle}`;
         }
     };
 
@@ -225,6 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Inicia o auto-play
         resetAutoPlay();
     };
+
+    // --- Melhoria: Pausar autoplay no hover ---
+    carouselContainer.addEventListener('mouseenter', () => clearInterval(autoPlayInterval));
+    carouselContainer.addEventListener('mouseleave', () => resetAutoPlay());
+    // Pausa também quando o usuário foca em um elemento dentro do carrossel
+    carouselContainer.addEventListener('focusin', () => clearInterval(autoPlayInterval));
+    carouselContainer.addEventListener('focusout', () => resetAutoPlay());
 
     init();
 });

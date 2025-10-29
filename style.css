@@ -52,7 +52,11 @@ body {
 .slide-image {
     width: 100%;
     height: 280px; /* Altura da imagem ajustada para um visual mais compacto */
-    object-fit: contain; /* Garante que a imagem inteira seja visível, sem cortes. Ideal para imagens com texto. */
+    /* 
+     * 'contain' garante que a imagem inteira seja visível, sem cortes. 
+     * Ideal para banners que contêm texto. A alternativa 'cover' preencheria o espaço, mas poderia cortar partes da imagem.
+     */
+    object-fit: contain; 
     background-color: var(--image-background-color); /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
 }
