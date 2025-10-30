@@ -10,6 +10,10 @@
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
 body {
     font-family: var(--font-family);
     display: flex;
@@ -18,7 +22,6 @@ body {
     min-height: 100vh;
     margin: 0;
     background-color: var(--background-color);
-    box-sizing: border-box;
 }
 
 .content-wrapper {
@@ -73,11 +76,15 @@ body {
 }
 
 .slide-content {
-    padding: 15px 20px 50px; /* Aumenta o padding inferior para dar espaço aos dots */
+    padding: 15px 20px 50px; /* Padding inferior aumentado para dar espaço aos dots e ícone */
     background-color: var(--card-background-color);
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
-    position: relative; /* Torna este o container de referência para o título expandido */
+    position: relative;
+    display: flex; /* Usar flexbox para melhor alinhamento */
+    flex-direction: column; /* Organiza os itens verticalmente */
+    justify-content: space-between; /* Garante que o título e o ícone se espalhem */
+    min-height: 150px; /* Altura mínima para acomodar título e descrição */
 }
 
 .slide-link {
@@ -88,21 +95,34 @@ body {
 }
 
 .slide-title {
-    /* Removido position: absolute e background */
-    color: var(--text-color-primary); /* Cor do texto para fundo claro */
-    background: none; /* Remove o gradiente */
+    color: var(--text-color-primary);
     padding: 0;
-    font-size: 1.1em; /* Fonte reduzida para melhor ajuste em uma linha */
+    font-size: 1.1em;
     font-weight: 600;
-    box-sizing: border-box;
-    position: relative; /* Necessário para o efeito de hover */
-    transition: background-color 0.3s ease;
-    /* Limita o título a 1 linha e adiciona "..." */
+    transition: color 0.3s ease;
+    /* Permite até 2 linhas e adiciona "..." se for maior */
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
     text-align: center; /* Centraliza o texto do título */
+    min-height: 2.4em; /* Garante altura mínima para 2 linhas, evitando "pulos" no layout */
+    line-height: 1.2em; /* Melhora a legibilidade entre linhas */
+}
+
+.slide-description {
+    font-size: 0.9em;
+    color: var(--text-color-secondary);
+    line-height: 1.4;
+    margin: 10px 0;
+    text-align: center;
+    /* Limita a descrição a 2 linhas para manter o layout consistente */
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    /* Garante que o espaço seja ocupado mesmo se a descrição for curta */
+    min-height: 2.5em; 
 }
 
 /* Efeito de hover simples para o título */
@@ -112,9 +132,9 @@ body {
 
 /* Ícone do Instagram */
 .instagram-icon {
-    position: absolute;
-    bottom: 15px;
-    right: 20px;
+    position: absolute; /* Posição absoluta em relação ao .slide-content */
+    bottom: 10px; /* Ajuste a posição vertical */
+    right: 15px; /* Ajuste a posição horizontal */
     color: #c13584; /* Cor clássica do Instagram */
     z-index: 5;
     transition: transform 0.3s ease, color 0.3s ease;
@@ -126,20 +146,22 @@ body {
 }
 
 /* Animação para o conteúdo do slide ativo */
-.slide-date, .slide-title {
+.slide-date, .slide-title, .slide-description {
     opacity: 0;
     transform: translateY(15px);
     transition: opacity 0.5s ease-out 0.3s, transform 0.5s ease-out 0.3s;
 }
 
 .carousel-slide.is-active .slide-date,
-.carousel-slide.is-active .slide-title {
+.carousel-slide.is-active .slide-title,
+.carousel-slide.is-active .slide-description {
     opacity: 1;
     transform: translateY(0);
 }
 
 /* Atraso na animação do título para um efeito escalonado */
 .carousel-slide.is-active .slide-title { transition-delay: 0.4s; }
+.carousel-slide.is-active .slide-description { transition-delay: 0.5s; }
 
 /* Navegação */
 .carousel-button {
@@ -262,4 +284,17 @@ body {
     .carousel-button {
         top: 120px; /* Posição ajustada para a altura da imagem no mobile */
     }
+}
+
+/* Classe para esconder conteúdo visualmente, mas mantê-lo acessível para leitores de tela */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
 }

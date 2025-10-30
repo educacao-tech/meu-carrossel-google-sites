@@ -60,6 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 loading="lazy">
                             <div class="slide-content">
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
+                                <p class="slide-description"></p>
                                 ${instagramIconHTML}
                             </div>
                         </div>
@@ -111,8 +112,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza o contador de slides
     const updateCounter = (current, total) => {
         if (carouselCounter) {
-            const currentTitle = slides[current].querySelector('.slide-title').textContent;
-            carouselCounter.textContent = `Notícia ${current + 1} de ${total}: ${currentTitle}`;
+            // Formato visual: "1 / 10". Texto para leitores de tela: "Notícia 1 de 10".
+            carouselCounter.innerHTML = `<span class="visually-hidden">Notícia ${current + 1} de ${total}</span><span aria-hidden="true">${current + 1} / ${total}</span>`;
         }
     };
 
@@ -125,6 +126,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Gerencia a classe ativa e atributos ARIA para animações e acessibilidade
         slides.forEach((slide, index) => {
             const isActive = index === targetIndex;
+            const descriptionEl = slide.querySelector('.slide-description');
+            if (isActive && descriptionEl) {
+                const link = slide.querySelector('.slide-link');
+                descriptionEl.textContent = link.dataset.description || '';
+            }
             slide.classList.toggle('is-active', isActive);
             slide.setAttribute('aria-hidden', !isActive);
         });
@@ -168,15 +174,23 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Se houver apenas um slide, exiba-o estaticamente sem controles de navegação.
         if (slides.length <= 1) {
-            if(slides.length === 1) generateDots(); // Gera o ponto mesmo para um slide
-            // Esconde os botões de navegação se houver 1 ou menos slides
             prevButton.style.display = 'none';
             nextButton.style.display = 'none';
-            return; // Não inicializa botões e autoplay se não houver slides ou apenas um
+            carouselDotsContainer.style.display = 'none';
+            if (slides.length === 1) {
+                moveTo(0); // Garante que o único slide seja exibido corretamente
+            }
+            return; // Encerra a inicialização do carrossel interativo
         }
 
         generateDots();
+        
+        // Melhora a acessibilidade dos botões de navegação
+        prevButton.setAttribute('aria-controls', 'carousel-track');
+        nextButton.setAttribute('aria-controls', 'carousel-track');
+
         // O moveTo(0) já chama updateCounter e updateDots
         moveTo(0); // Posiciona no slide inicial
 
@@ -195,7 +209,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Ajusta a posição do carrossel ao redimensionar a janela
         window.addEventListener('resize', debounce(() => {
-            moveTo(currentIndex);
+            // Recalcula a posição sem animação para um ajuste suave
+            moveTo(currentIndex, false);
         }));
 
         // --- Melhoria: Navegação por Teclado ---
