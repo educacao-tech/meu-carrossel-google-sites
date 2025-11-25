@@ -1,6 +1,18 @@
 [
     {
         "published": true,
+        "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3662_570_370_202511171701473086660.jpg",
+        "altText": "Secretaria de Educação realiza Festival da Educação Infantil com o tema Brinquedos e Brincadeiras",
+        "date": "2025-11-17",
+        "displayDate": "17 de Novembro de 2025",
+        "instagramLink": "",
+        "link": "https://www.batatais.sp.gov.br/noticias/secretaria-de-educacao-realiza-festival-da-educacao-infantil-com-o-tema-brinquedos-e-brincadeiras",
+        "title": "Secretaria de Educação realiza Festival da Educação Infantil com o tema Brinquedos e Brincadeiras",
+        "description": "A Prefeitura Municipal, por meio da Secretaria de Educação, realizará nesta terça e quarta-feira, dias 18 e 19 de novembro, às 19h, no Teatro Municipal, o tradicional Festival da Educação Infantil, evento já consolidado no calendário pedagógico da rede municipal de ensino. A programação é voltada aos estudantes da pré-escola, com entrada gratuita para as famílias.",
+        "readMoreText": "Leia Mais"
+    },
+    {
+        "published": true,
         "imageUrl": "https://img.youtube.com/vi/iOdAQZuFogE/maxresdefault.jpg",
         "altText": "Miniatura do vídeo sobre a 5ª Feira de conhecimentos 2025 da EMEB Padre Benito de Uriarte Erbastrain",
         "date": "2025-11-12",
