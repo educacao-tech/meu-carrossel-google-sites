@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const descriptionEl = slide.querySelector('.slide-description');
             if (isActive && descriptionEl) {
                 const link = slide.querySelector('.slide-link');
-                descriptionEl.textContent = link.dataset.description || '';
+                descriptionEl.innerHTML = link.dataset.description || '';
             }
             slide.classList.toggle('is-active', isActive);
             slide.setAttribute('aria-hidden', !isActive);
