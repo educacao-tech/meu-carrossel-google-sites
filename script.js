@@ -12,6 +12,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let autoPlayInterval = null;
     // Variáveis para o controle do swipe
     let touchStartX = 0;
+
     let touchEndX = 0;
     const swipeThreshold = 50; // Mínimo de pixels para considerar um swipe
 
@@ -157,6 +158,46 @@ document.addEventListener('DOMContentLoaded', () => {
         autoPlayInterval = setInterval(() => nextButton.click(), 5000);
     };
 
+    // --- Melhoria: Adiciona CSS para Responsividade ---
+    const addResponsiveCSS = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Estilos para telas menores (ex: celulares) */
+            @media (max-width: 768px) {
+                .slide-body {
+                    /* Coloca a imagem e o conteúdo em coluna */
+                    flex-direction: column;
+                }
+
+                .slide-image {
+                    /* Imagem ocupa a largura total e tem altura automática */
+                    width: 100%;
+                    height: auto;
+                    max-height: 250px; /* Altura máxima para não ficar muito grande */
+                    object-fit: cover;
+                    border-radius: 8px 8px 0 0; /* Arredonda cantos superiores */
+                }
+
+                .slide-content {
+                    /* Ajusta o preenchimento para telas menores */
+                    padding: 12px;
+                }
+
+                .slide-title {
+                    /* Reduz o tamanho da fonte do título */
+                    font-size: 16px;
+                    line-height: 1.3;
+                }
+
+                .slide-description {
+                     /* Reduz o tamanho da fonte da descrição */
+                    font-size: 14px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    };
+
     // --- 4. INICIALIZAÇÃO E EVENTOS ---
     const init = async () => {
         if (spinner) spinner.style.display = 'block'; // Mostra o spinner
@@ -173,6 +214,9 @@ document.addEventListener('DOMContentLoaded', () => {
             carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: red;">Erro ao carregar notícias.</p>';
             return;
         }
+
+        // Adiciona os estilos de responsividade
+        addResponsiveCSS();
 
         // Se houver apenas um slide, exiba-o estaticamente sem controles de navegação.
         if (slides.length <= 1) {
