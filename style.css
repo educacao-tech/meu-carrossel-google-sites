@@ -261,12 +261,31 @@ body {
 
 /* Responsividade básica */
 @media (max-width: 600px) {
+    .carousel-container {
+        width: 95%; /* Ocupa mais espaço na tela */
+    }
+
     .slide-image {
         height: 200px; /* Altura da imagem ajustada para mobile */
     }
 
-    .carousel-container {
-        min-height: 340px; /* Altura ajustada para mobile */
+    .slide-content {
+        padding: 15px 15px 45px; /* Reduz o padding lateral e ajusta o inferior */
+        min-height: 120px; /* Reduz a altura mínima para o conteúdo */
+    }
+
+    .slide-title {
+        font-size: 1em; /* Fonte do título reduzida para mobile */
+    }
+
+    .slide-description {
+        font-size: 0.85em; /* Fonte da descrição reduzida para mobile */
+    }
+
+    .carousel-button {
+        top: 100px; /* Posição ajustada para o centro da nova altura da imagem (200px / 2) */
+        width: 36px;
+        height: 36px;
     }
 
     .carousel-button.prev {
@@ -275,14 +294,6 @@ body {
 
     .carousel-button.next {
         right: 10px;
-    }
-
-    .slide-title {
-        font-size: 1em; /* Fonte reduzida para mobile */
-    }
-
-    .carousel-button {
-        top: 120px; /* Posição ajustada para a altura da imagem no mobile */
     }
 }
 
