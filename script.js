@@ -119,10 +119,15 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Move o carrossel para o índice alvo
-    const moveTo = (targetIndex) => {
+    const moveTo = (targetIndex, withAnimation = true) => {
         const slideWidth = slides[0].offsetWidth;
         const newTransform = -targetIndex * slideWidth;
+
+        // Controla a animação de transição
+        carouselTrack.style.transition = withAnimation ? 'transform 0.5s ease-in-out' : 'none';
         carouselTrack.style.transform = `translateX(${newTransform}px)`;
+        // Garante que a animação seja reativada após um ajuste sem animação
+        if (!withAnimation) carouselTrack.offsetHeight; // Força o navegador a aplicar o estilo 'none'
 
         // Gerencia a classe ativa e atributos ARIA para animações e acessibilidade
         slides.forEach((slide, index) => {
@@ -139,6 +144,9 @@ document.addEventListener('DOMContentLoaded', () => {
         currentIndex = targetIndex;
         updateDots(targetIndex);
         updateCounter(targetIndex, slides.length);
+
+        // Restaura a animação após a execução
+        carouselTrack.style.transition = 'transform 0.5s ease-in-out';
     };
     
     // --- Melhoria: Função Debounce ---
@@ -164,6 +172,16 @@ document.addEventListener('DOMContentLoaded', () => {
         style.textContent = `
             /* Estilos para telas menores (ex: celulares) */
             @media (max-width: 768px) {
+                /* Garante que o wrapper não tenha paddings que cortem o conteúdo */
+                .content-wrapper {
+                    padding: 0;
+                }
+
+                /* Remove bordas e sombras que podem causar cortes */
+                .carousel-container {
+                    border: none;
+                    box-shadow: none;
+                }
                 .slide-body {
                     /* Coloca a imagem e o conteúdo em coluna */
                     flex-direction: column;
@@ -181,6 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .slide-content {
                     /* Ajusta o preenchimento para telas menores */
                     padding: 12px;
+                    /* Permite que o conteúdo cresça para exibir todo o texto */
+                    flex-grow: 1;
                 }
 
                 .slide-title {
@@ -193,7 +213,31 @@ document.addEventListener('DOMContentLoaded', () => {
                      /* Reduz o tamanho da fonte da descrição */
                     font-size: 14px;
                 }
+
+                /* Ajusta o tamanho e a posição dos botões de navegação */
+                .carousel-button {
+                    width: 30px;
+                    height: 30px;
+                    font-size: 18px;
+                    top: 40%; /* Sobe um pouco os botões */
+                }
+
+                /* Adiciona uma margem abaixo do carrossel para separar do botão "Ver Mais" */
+                .carousel-container {
+                    margin-bottom: 16px;
+                }
+
+
             }
+        `;
+        document.head.appendChild(style);
+    };
+
+    // --- Melhoria: Garante que os slides tenham largura flexível ---
+    const setFlexibleSlideWidth = () => {
+        const style = document.createElement('style');
+        style.textContent = `
+            .carousel-slide { flex: 0 0 100%; }
         `;
         document.head.appendChild(style);
     };
@@ -217,6 +261,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Adiciona os estilos de responsividade
         addResponsiveCSS();
+
+        // Garante que a largura do slide seja sempre 100% do contêiner
+        setFlexibleSlideWidth();
 
         // Se houver apenas um slide, exiba-o estaticamente sem controles de navegação.
         if (slides.length <= 1) {
