@@ -31,6 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Formatador de data para Português do Brasil
+        const dateFormatter = new Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit',
+            month: 'long',
+            year: 'numeric'
+        });
+
         let slidesHTML = '';
         publishedNews.forEach((newsItem, index) => {
             // Cria o ícone do Instagram apenas se o link existir
@@ -39,6 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                    </a>`
                 : '';
+
+            // Formata a data automaticamente se displayDate não existir ou para garantir padrão
+            let formattedDate = newsItem.displayDate;
+            if (newsItem.date) {
+                const dateObj = new Date(newsItem.date + 'T00:00:00'); // Garante fuso local/correto
+                formattedDate = dateFormatter.format(dateObj);
+            }
 
             const slideId = `slide${index + 1}`;
             const slideTitleId = `${slideId}-title`;
@@ -52,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         tabindex="-1"
                         data-description="${newsItem.description.replace(/"/g, '&quot;')}"
                         data-read-more="${newsItem.readMoreText}">
-                        <div class="slide-date">${newsItem.displayDate}</div>
+                        <div class="slide-date">${formattedDate}</div>
                         <div class="slide-body">
                             <img 
                                 class="slide-image" 
@@ -166,82 +180,6 @@ document.addEventListener('DOMContentLoaded', () => {
         autoPlayInterval = setInterval(() => nextButton.click(), 5000);
     };
 
-    // --- Melhoria: Adiciona CSS para Responsividade ---
-    const addResponsiveCSS = () => {
-        const style = document.createElement('style');
-        style.textContent = `
-            /* Estilos para telas menores (ex: celulares) */
-            @media (max-width: 768px) {
-                /* Garante que o wrapper não tenha paddings que cortem o conteúdo */
-                .content-wrapper {
-                    padding: 0;
-                }
-
-                /* Remove bordas e sombras que podem causar cortes */
-                .carousel-container {
-                    border: none;
-                    box-shadow: none;
-                }
-                .slide-body {
-                    /* Coloca a imagem e o conteúdo em coluna */
-                    flex-direction: column;
-                }
-
-                .slide-image {
-                    /* Imagem ocupa a largura total e tem altura automática */
-                    width: 100%;
-                    height: auto;
-                    max-height: 250px; /* Altura máxima para não ficar muito grande */
-                    object-fit: cover;
-                    border-radius: 8px 8px 0 0; /* Arredonda cantos superiores */
-                }
-
-                .slide-content {
-                    /* Ajusta o preenchimento para telas menores */
-                    padding: 12px;
-                    /* Permite que o conteúdo cresça para exibir todo o texto */
-                    flex-grow: 1;
-                }
-
-                .slide-title {
-                    /* Reduz o tamanho da fonte do título */
-                    font-size: 16px;
-                    line-height: 1.3;
-                }
-
-                .slide-description {
-                     /* Reduz o tamanho da fonte da descrição */
-                    font-size: 14px;
-                }
-
-                /* Ajusta o tamanho e a posição dos botões de navegação */
-                .carousel-button {
-                    width: 30px;
-                    height: 30px;
-                    font-size: 18px;
-                    top: 40%; /* Sobe um pouco os botões */
-                }
-
-                /* Adiciona uma margem abaixo do carrossel para separar do botão "Ver Mais" */
-                .carousel-container {
-                    margin-bottom: 16px;
-                }
-
-
-            }
-        `;
-        document.head.appendChild(style);
-    };
-
-    // --- Melhoria: Garante que os slides tenham largura flexível ---
-    const setFlexibleSlideWidth = () => {
-        const style = document.createElement('style');
-        style.textContent = `
-            .carousel-slide { flex: 0 0 100%; }
-        `;
-        document.head.appendChild(style);
-    };
-
     // --- 4. INICIALIZAÇÃO E EVENTOS ---
     const init = async () => {
         if (spinner) spinner.style.display = 'block'; // Mostra o spinner
@@ -258,12 +196,6 @@ document.addEventListener('DOMContentLoaded', () => {
             carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: red;">Erro ao carregar notícias.</p>';
             return;
         }
-
-        // Adiciona os estilos de responsividade
-        addResponsiveCSS();
-
-        // Garante que a largura do slide seja sempre 100% do contêiner
-        setFlexibleSlideWidth();
 
         // Se houver apenas um slide, exiba-o estaticamente sem controles de navegação.
         if (slides.length <= 1) {

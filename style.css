@@ -47,7 +47,7 @@ body {
 }
 
 .carousel-slide {
-    flex: 0 0 100%;
+    flex: 0 0 100%; /* Garante largura total */
     max-width: 100%;
     box-sizing: border-box;
 }
@@ -92,6 +92,12 @@ body {
     /* Não precisa de position: relative aqui, pois o título não será sobreposto */
     text-decoration: none;
     color: inherit;
+    outline: none; /* Remove outline padrão para substituir pelo focus-visible */
+}
+
+/* Foco visível para acessibilidade */
+.slide-link:focus-visible {
+    box-shadow: 0 0 0 3px var(--primary-color);
 }
 
 .slide-title {
@@ -180,6 +186,10 @@ body {
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+.carousel-button:focus-visible {
+    outline: 3px solid var(--primary-color);
+}
+
 .carousel-button:hover {
     background-color: rgba(0, 0, 0, 0.8);
     transform: translateY(-50%) scale(1.1); /* Efeito de escala no hover */
@@ -213,6 +223,10 @@ body {
     transition: background-color 0.3s ease, transform 0.3s ease;
     border: 2px solid rgba(0, 0, 0, 0.2);
     padding: 0; /* Remove padding de botão */
+}
+
+.dot:focus-visible {
+    outline: 3px solid var(--primary-color);
 }
 
 .dot.active {
@@ -260,40 +274,57 @@ body {
 }
 
 /* Responsividade básica */
-@media (max-width: 600px) {
+@media (max-width: 768px) {
+    .content-wrapper {
+        padding: 0;
+    }
+
     .carousel-container {
-        width: 95%; /* Ocupa mais espaço na tela */
+        width: 100%; /* Ocupa mais espaço na tela */
+        border: none;
+        box-shadow: none;
+        margin-bottom: 16px;
+    }
+
+    .slide-body {
+        /* Coloca a imagem e o conteúdo em coluna */
+        flex-direction: column;
     }
 
     .slide-image {
-        height: 200px; /* Altura da imagem ajustada para mobile */
+        /* Imagem ocupa a largura total e tem altura automática */
+        width: 100%;
+        height: auto;
+        max-height: 250px; /* Altura máxima para não ficar muito grande */
+        object-fit: cover;
+        border-radius: 8px 8px 0 0; /* Arredonda cantos superiores */
     }
 
     .slide-content {
-        padding: 15px 15px 45px; /* Reduz o padding lateral e ajusta o inferior */
-        min-height: 120px; /* Reduz a altura mínima para o conteúdo */
+        /* Ajusta o preenchimento para telas menores */
+        padding: 12px;
+        /* Permite que o conteúdo cresça para exibir todo o texto */
+        flex-grow: 1;
+        min-height: auto;
     }
 
     .slide-title {
-        font-size: 1em; /* Fonte do título reduzida para mobile */
+        /* Reduz o tamanho da fonte do título */
+        font-size: 16px;
+        line-height: 1.3;
     }
 
     .slide-description {
-        font-size: 0.85em; /* Fonte da descrição reduzida para mobile */
+            /* Reduz o tamanho da fonte da descrição */
+        font-size: 14px;
     }
 
+    /* Ajusta o tamanho e a posição dos botões de navegação */
     .carousel-button {
-        top: 100px; /* Posição ajustada para o centro da nova altura da imagem (200px / 2) */
-        width: 36px;
-        height: 36px;
-    }
-
-    .carousel-button.prev {
-        left: 10px;
-    }
-
-    .carousel-button.next {
-        right: 10px;
+        width: 30px;
+        height: 30px;
+        font-size: 18px;
+        top: 40%; /* Sobe um pouco os botões */
     }
 }
 
