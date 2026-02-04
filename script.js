@@ -21,6 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Gera o HTML dos slides a partir dos dados (newsData)
     const generateCarouselSlides = (newsData) => {
+        if (!Array.isArray(newsData)) {
+            console.error("Dados inválidos: newsData deve ser um array.");
+            return;
+        }
+
         const publishedNews = newsData
             .filter(item => item.published)
             .sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -72,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 class="slide-image" 
                                 src="${newsItem.imageUrl}" 
                                 alt="${newsItem.altText}" 
-                                loading="lazy">
+                                loading="${index === 0 ? 'eager' : 'lazy'}">
                             <div class="slide-content">
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
                                 <p class="slide-description"></p>

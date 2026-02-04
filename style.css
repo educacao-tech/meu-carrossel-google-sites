@@ -8,6 +8,8 @@
     --image-background-color: #f0f2f5;
     --shadow-color: rgba(0, 0, 0, 0.1);
     --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    --instagram-color: #c13584;
+    --instagram-color-hover: #833ab4;
 }
 
 *, *::before, *::after {
@@ -44,6 +46,7 @@ body {
 .carousel-track {
     display: flex;
     transition: transform 0.5s ease-in-out;
+    will-change: transform; /* Otimização de performance para animação */
 }
 
 .carousel-slide {
@@ -141,14 +144,14 @@ body {
     position: absolute; /* Posição absoluta em relação ao .slide-content */
     bottom: 10px; /* Ajuste a posição vertical */
     right: 15px; /* Ajuste a posição horizontal */
-    color: #c13584; /* Cor clássica do Instagram */
+    color: var(--instagram-color);
     z-index: 5;
     transition: transform 0.3s ease, color 0.3s ease;
 }
 
 .instagram-icon:hover {
     transform: scale(1.15);
-    color: #833ab4; /* Um tom mais escuro no hover */
+    color: var(--instagram-color-hover);
 }
 
 /* Animação para o conteúdo do slide ativo */
