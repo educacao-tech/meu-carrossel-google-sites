@@ -69,8 +69,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         class="slide-link" 
                         aria-label="Leia a notícia: ${newsItem.title}" 
                         tabindex="-1"
-                        data-description="${newsItem.description.replace(/"/g, '&quot;')}"
-                        data-read-more="${newsItem.readMoreText}">
+                        data-description="${newsItem.description.replace(/"/g, '&quot;')}">
                         <div class="slide-date">${formattedDate}</div>
                         <div class="slide-body">
                             <img 
@@ -78,7 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
                                 src="${newsItem.imageUrl}" 
                                 alt="${newsItem.altText}" 
                                 loading="${index === 0 ? 'eager' : 'lazy'}">
-                            <div class="slide-content">
+                            <div class="slide-content" data-read-more="${newsItem.readMoreText}">
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
                                 <p class="slide-description"></p>
                                 ${instagramIconHTML}
