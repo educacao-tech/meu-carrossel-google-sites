@@ -281,6 +281,7 @@ body {
 @media (max-width: 768px) {
     .content-wrapper {
         padding: 0;
+        gap: 10px; /* Reduz o espaço vertical entre elementos */
     }
 
     .carousel-container {
@@ -306,7 +307,7 @@ body {
 
     .slide-content {
         /* Ajusta o preenchimento para telas menores */
-        padding: 12px;
+        padding: 8px 10px; /* Reduz as margens internas */
         /* Permite que o conteúdo cresça para exibir todo o texto */
         flex-grow: 1;
         min-height: auto;
@@ -321,6 +322,11 @@ body {
     .slide-description {
             /* Reduz o tamanho da fonte da descrição */
         font-size: 14px;
+    }
+
+    .slide-date {
+        padding: 5px 10px; /* Reduz o espaçamento da data */
+        font-size: 0.75em;
     }
 
     /* Ajusta o tamanho e a posição dos botões de navegação */
