@@ -31,6 +31,7 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 25px; /* Espaço entre o carrossel e o botão */
+    width: 100%;
 }
 
 .carousel-container {
