@@ -54,18 +54,32 @@ body {
     flex: 0 0 100%; /* Garante largura total */
     max-width: 100%;
     box-sizing: border-box;
+    position: relative; /* Necessário para posicionar o ícone do Instagram corretamente */
+}
+
+/* Wrapper para controlar o zoom da imagem sem vazar */
+.slide-image-wrapper {
+    width: 100%;
+    height: 280px; /* Altura da imagem ajustada para um visual mais compacto */
+    overflow: hidden; /* Essencial para o efeito de zoom */
+    background-color: var(--image-background-color);
 }
 
 .slide-image {
     width: 100%;
-    height: 280px; /* Altura da imagem ajustada para um visual mais compacto */
+    height: 100%; /* Preenche o wrapper */
     /* 
      * 'contain' garante que a imagem inteira seja visível, sem cortes. 
      * Ideal para banners que contêm texto. A alternativa 'cover' preencheria o espaço, mas poderia cortar partes da imagem.
      */
     object-fit: contain; 
-    background-color: var(--image-background-color); /* Fundo para a área da imagem, para um efeito de moldura */
     display: block;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição suave para o zoom */
+}
+
+/* Efeito de Zoom ao passar o mouse no card */
+.slide-link:hover .slide-image {
+    transform: scale(1.08);
 }
 
 .slide-date {
@@ -108,18 +122,26 @@ body {
 .slide-content::after {
     content: attr(data-read-more);
     display: block;
-    margin-top: 15px;
+    margin: 20px auto 0; /* Centraliza o bloco */
     text-align: center;
-    font-weight: bold;
-    color: var(--primary-color);
-    font-size: 0.9em;
+    font-weight: 700;
+    color: var(--primary-color); /* Texto azul */
+    font-size: 0.85em;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
+    background-color: rgba(0, 123, 255, 0.08); /* Fundo azul bem clarinho */
+    padding: 10px 24px;
+    border-radius: 50px; /* Formato de pílula */
+    width: fit-content; /* Largura se ajusta ao texto */
+    transition: all 0.3s ease;
 }
 
 .slide-link:hover .slide-content::after {
-    color: var(--primary-color-hover);
-    text-decoration: underline;
+    background-color: var(--primary-color);
+    color: #ffffff; /* Texto branco no hover */
+    box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Sombra suave */
+    transform: translateY(-2px);
+    text-decoration: none;
 }
 
 .slide-title {
@@ -196,15 +218,17 @@ body {
     position: absolute;
     top: 160px; /* Posição ajustada para a nova altura da imagem */
     transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: white;
+    background-color: rgba(255, 255, 255, 0.85); /* Fundo claro translúcido */
+    color: var(--primary-color);
+    backdrop-filter: blur(4px); /* Efeito de vidro */
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
     cursor: pointer;
     font-size: 1.5em;
     border-radius: 50%;
     z-index: 10;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
@@ -213,8 +237,9 @@ body {
 }
 
 .carousel-button:hover {
-    background-color: rgba(0, 0, 0, 0.8);
+    background-color: #ffffff;
     transform: translateY(-50%) scale(1.1); /* Efeito de escala no hover */
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
 }
 
 .carousel-button.prev {
@@ -234,6 +259,7 @@ body {
     display: flex;
     gap: 10px;
     z-index: 10;
+    pointer-events: none; /* Permite clicar no botão "Leia Mais" através da área vazia dos dots */
 }
 
 .dot {
@@ -245,6 +271,7 @@ body {
     transition: background-color 0.3s ease, transform 0.3s ease;
     border: 2px solid rgba(0, 0, 0, 0.2);
     padding: 0; /* Remove padding de botão */
+    pointer-events: auto; /* Reativa o clique apenas nos pontos */
 }
 
 .dot:focus-visible {
@@ -318,12 +345,15 @@ body {
         flex-direction: column;
     }
 
+    .slide-image-wrapper {
+        height: 200px; /* Ajusta a altura do wrapper no mobile */
+        border-radius: 8px 8px 0 0;
+    }
+
     .slide-image {
-        /* Imagem ocupa a largura total e tem altura automática */
-        width: 100%;
-        height: 200px; /* Altura fixa para garantir boa visualização da imagem */
+        height: 100%;
         object-fit: cover;
-        border-radius: 8px 8px 0 0; /* Arredonda cantos superiores */
+        border-radius: 0; /* O wrapper já cuida do arredondamento */
     }
 
     .slide-content {

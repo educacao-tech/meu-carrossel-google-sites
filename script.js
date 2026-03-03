@@ -72,18 +72,20 @@ document.addEventListener('DOMContentLoaded', () => {
                         data-description="${newsItem.description.replace(/"/g, '&quot;')}">
                         <div class="slide-date">${formattedDate}</div>
                         <div class="slide-body">
-                            <img 
-                                class="slide-image" 
-                                src="${newsItem.imageUrl}" 
-                                alt="${newsItem.altText}" 
-                                loading="${index === 0 ? 'eager' : 'lazy'}">
+                            <div class="slide-image-wrapper">
+                                <img 
+                                    class="slide-image" 
+                                    src="${newsItem.imageUrl}" 
+                                    alt="${newsItem.altText}" 
+                                    loading="${index === 0 ? 'eager' : 'lazy'}">
+                            </div>
                             <div class="slide-content" data-read-more="${newsItem.readMoreText}">
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
                                 <p class="slide-description"></p>
-                                ${instagramIconHTML}
                             </div>
                         </div>
                     </a>
+                    ${instagramIconHTML}
                 </div>
             `;
         });
