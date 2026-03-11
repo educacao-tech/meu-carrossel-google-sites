@@ -1,6 +1,18 @@
 [
     {
         "published": true,
+        "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3784_570_370_202603111520098084550.jpeg",
+        "altText": "Secretaria de Educação esclarece informações sobre alimentação escolar e confirma normalidade no atendimento",
+        "date": "2026-03-11",
+        "displayDate": "11 de Março de 2026",
+        "instagramLink": "https://www.instagram.com/p/DVwQe8WkcCe/",
+        "link": "https://www.batatais.sp.gov.br/noticias/secretaria-de-educacao-esclarece-informacoes-sobre-alimentacao-escolar-e-confirma-normalidade-no-atendimento",
+        "title": "📢 A Secretaria de Educação de Batatais esclarece informações que têm circulado nas redes sociais sobre a alimentação escolar na rede municipal.",
+        "description": "Na semana passada ocorreu um problema técnico no compressor da câmara fria da Cozinha Piloto. Por precaução e para evitar qualquer risco de desabastecimento, foi realizada uma adequação temporária no cardápio, especialmente no período da tarde. A situação já foi normalizada. ✅",
+        "readMoreText": "Leia Mais"
+    },
+    {
+        "published": true,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3773_570_370_202603031323520880410.jpeg",
         "altText": "O município de Batatais registrou avanços importantes na educação básica, superando as metas estabelecidas no Saresp (Sistema de Avaliação de Rendimento Escolar do Estado de São Paulo) no comparativo entre 2024 e 2025.",
         "date": "2026-03-03",
