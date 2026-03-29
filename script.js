@@ -140,12 +140,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Move o carrossel para o índice alvo
     const moveTo = (targetIndex, withAnimation = true) => {
-        const slideWidth = slides[0].offsetWidth;
-        const newTransform = -targetIndex * slideWidth;
+        const newTransform = -targetIndex * 100; // Move por 100% da largura do slide
 
         // Controla a animação de transição
         carouselTrack.style.transition = withAnimation ? 'transform 0.5s ease-in-out' : 'none';
-        carouselTrack.style.transform = `translateX(${newTransform}px)`;
+        carouselTrack.style.transform = `translateX(${newTransform}%)`;
         // Garante que a animação seja reativada após um ajuste sem animação
         if (!withAnimation) carouselTrack.offsetHeight; // Força o navegador a aplicar o estilo 'none'
 
