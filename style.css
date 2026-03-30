@@ -38,6 +38,7 @@ body {
     position: relative;
     width: 90%; /* Ajuste a largura conforme necessário */
     max-width: 800px; /* Largura máxima para o carrossel */
+    min-height: 500px; /* Previne Layout Shift enquanto carrega */
     overflow: hidden; /* Esconde os slides que não estão ativos */
     border-radius: 8px;
     box-shadow: 0 8px 16px var(--shadow-color);
@@ -286,6 +287,24 @@ body {
     border-radius: 10px; /* Transforma em pílula */
 }
 
+/* Barra de Progresso do Autoplay */
+.autoplay-progress-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: rgba(0, 0, 0, 0.05);
+    z-index: 20;
+}
+
+.autoplay-progress-bar {
+    height: 100%;
+    width: 0%;
+    background-color: var(--primary-color);
+    transition: width 5s linear; /* Deve coincidir com o tempo do autoplay */
+}
+
 /* Botão "Mais Notícias" */
 .more-news-button {
     display: inline-block;
@@ -303,19 +322,21 @@ body {
     transform: translateY(-2px);
 }
 
-/* Spinner (opcional, se quiser um indicador de carregamento) */
-.spinner {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    border: 4px solid rgba(0, 0, 0, 0.1);
-    border-top: 4px solid var(--primary-color);
-    border-radius: 50%;
-    width: 30px;
-    height: 30px;
-    animation: spin 1s linear infinite;
-    display: none; /* Escondido por padrão, pode ser mostrado com JS */
+/* Skeleton Screen para melhor UX durante o carregamento */
+.skeleton {
+    background: #eee;
+    background: linear-gradient(110deg, #ececec 8%, #f5f5f5 18%, #ececec 33%);
+    border-radius: 5px;
+    background-size: 200% 100%;
+    animation: 1.5s shine linear infinite;
+}
+
+.skeleton-image { width: 100%; aspect-ratio: 16/9; margin-bottom: 20px; }
+.skeleton-text { height: 20px; width: 80%; margin: 10px auto; }
+.skeleton-text.short { width: 50%; }
+
+@keyframes shine {
+    to { background-position-x: -200%; }
 }
 
 @keyframes spin {

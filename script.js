@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const prevButton = document.querySelector('.carousel-button.prev');
     const nextButton = document.querySelector('.carousel-button.next');
     const carouselDotsContainer = document.querySelector('.carousel-dots');
+    const progressBar = document.querySelector('.autoplay-progress-bar');
     let slides = []; // Será preenchido após a geração dos slides
     let currentIndex = 0; // Começa no primeiro slide
     let autoPlayInterval = null;
@@ -18,6 +19,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // --- 3. FUNÇÕES DO CARROSSEL ---
+
+    // Helper para escapar strings HTML e evitar quebras de layout ou problemas de segurança
+    const escapeHTML = (str) => {
+        if (!str) return "";
+        return str.replace(/[&<>"']/g, (m) => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;',
+            '"': '&quot;', "'": '&#39;'
+        })[m]);
+    };
 
     // Gera o HTML dos slides a partir dos dados (newsData)
     const generateCarouselSlides = (newsData) => {
@@ -61,15 +71,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const slideId = `slide${index + 1}`;
             const slideTitleId = `${slideId}-title`;
+            const escapedTitle = escapeHTML(newsItem.title);
+            const escapedDescription = escapeHTML(newsItem.description);
+
             slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
                     <a 
                         href="${newsItem.link}" 
                         target="_blank" 
                         class="slide-link" 
-                        aria-label="Leia a notícia: ${newsItem.title}" 
+                        aria-label="Leia a notícia: ${escapedTitle}" 
                         tabindex="-1"
-                        data-description="${newsItem.description.replace(/"/g, '&quot;')}">
+                        data-description="${escapedDescription}">
                         <div class="slide-date">${formattedDate}</div>
                         <div class="slide-body">
                             <div class="slide-image-wrapper">
@@ -163,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         currentIndex = targetIndex;
         updateDots(targetIndex);
         updateCounter(targetIndex, slides.length);
+        resetProgressBar();
 
         // Restaura a animação após a execução
         carouselTrack.style.transition = 'transform 0.5s ease-in-out';
@@ -179,15 +193,35 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
+    // Reinicia a animação da barra de progresso
+    const resetProgressBar = () => {
+        if (!progressBar) return;
+        progressBar.style.transition = 'none';
+        progressBar.style.width = '0%';
+        // Force reflow
+        progressBar.offsetHeight;
+        progressBar.style.transition = 'width 5000ms linear';
+        progressBar.style.width = '100%';
+    };
+
     // Reinicia o autoplay
     const resetAutoPlay = () => {
         clearInterval(autoPlayInterval);
         autoPlayInterval = setInterval(() => nextButton.click(), 5000);
+        resetProgressBar();
     };
 
     // --- 4. INICIALIZAÇÃO E EVENTOS ---
     const init = async () => {
-        if (spinner) spinner.style.display = 'block'; // Mostra o spinner
+        // Exibe Skeleton Screen enquanto carrega
+        carouselTrack.innerHTML = `
+            <div class="carousel-slide">
+                <div class="skeleton skeleton-image"></div>
+                <div class="skeleton skeleton-text"></div>
+                <div class="skeleton skeleton-text short"></div>
+            </div>
+        `;
+
         try {
             const response = await fetch('news.json');
             if (!response.ok) {
