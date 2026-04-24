@@ -183,7 +183,7 @@ body {
 }
 
 /* Ícone do Instagram */
-.instagram-icon {
+/* O ícone do Instagram agora está dentro de .slide-content, então sua posição absoluta é relativa a ele. */
     position: absolute; /* Posição absoluta em relação ao .slide-content */
     bottom: 10px; /* Ajuste a posição vertical */
     right: 15px; /* Ajuste a posição horizontal */
@@ -422,4 +422,17 @@ body {
     clip: rect(0, 0, 0, 0);
     white-space: nowrap;
     border: 0;
+}
+
+/* Suporte a usuários que preferem movimento reduzido (Acessibilidade) */
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+    .carousel-track {
+        transition: none !important;
+    }
 }
