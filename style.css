@@ -511,7 +511,7 @@ body {
         width: 100%; /* Ocupa mais espaço na tela */
         border-radius: 0; /* Bordas retas no mobile para parecer nativo da largura da tela */
         box-shadow: 0 4px 10px var(--shadow-color);
-        min-height: 400px;
+        min-height: 560px; /* Aumentado para dar fôlego à descrição e ao botão Leia Mais */
     }
 
     .slide-body {
@@ -543,9 +543,15 @@ body {
         min-height: 1.2em; /* Ajusta a altura mínima para corresponder a apenas uma linha */
     }
 
+    .slide-description {
+        display: -webkit-box;
+        -webkit-line-clamp: 2; /* Garante que a descrição apareça com até 2 linhas */
+        min-height: 2.8em; /* Reserva o espaço necessário para as 2 linhas */
+    }
+
     .slide-date {
-        padding: 5px 10px; /* Reduz o espaçamento da data */
-        font-size: 0.75em;
+        padding: 45px 15px 5px; /* Aumenta o topo para descer a data e não bater nos botões (Play/Pause) */
+        font-size: 0.8rem;
     }
 
     /* Ajusta o tamanho e a posição dos botões de navegação */
