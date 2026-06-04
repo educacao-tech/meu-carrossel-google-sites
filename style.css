@@ -1,5 +1,6 @@
 :root {
     --primary-color: #007bff;
+    --primary-color-rgb: 0, 123, 255; /* Componentes RGB para uso com transparência */
     --primary-color-hover: #0056b3;
     --background-color: #f4f4f9;
     --card-background-color: #ffffff;
@@ -43,6 +44,17 @@ body {
     border-radius: 8px;
     box-shadow: 0 8px 16px var(--shadow-color);
     background-color: var(--card-background-color);
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transição suave para a sombra e elevação */
+}
+
+.carousel-container:hover {
+    /* 
+       Sombra multi-camada: 
+       1. Sombra escura para profundidade 
+       2. Sombra azul (glow) com espalhamento (spread) para o efeito de brilho
+    */
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 0 20px rgba(var(--primary-color-rgb), 0.4);
+    transform: translateY(-4px); /* Efeito de "elevação" */
 }
 
 .carousel-track {
@@ -60,11 +72,45 @@ body {
 
 /* Wrapper para controlar o zoom da imagem sem vazar */
 .slide-image-wrapper {
+    position: relative; /* Necessário para posicionar o gradiente sobre a imagem */
     width: 100%;
     aspect-ratio: 16 / 9; /* Mantém a proporção independente da largura */
     max-height: 350px;
     overflow: hidden; /* Essencial para o efeito de zoom */
     background-color: var(--image-background-color);
+}
+
+/* Efeito de brilho (glint) que percorre a imagem no hover */
+.slide-image-wrapper::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%; /* Começa fora da visão à esquerda */
+    width: 50%;
+    height: 100%;
+    background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: skewX(-25deg); /* Inclinação diagonal para um visual dinâmico */
+    z-index: 2; /* Fica acima da imagem e do gradiente azul */
+    pointer-events: none;
+    will-change: left;
+}
+
+/* Efeito de gradiente na base da imagem para melhorar a transição e leitura */
+.slide-image-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%; /* Aumentado ligeiramente para um efeito mais suave */
+    /* Usa a variável RGB para criar um gradiente azul translúcido */
+    background: linear-gradient(to top, rgba(var(--primary-color-rgb), 0.5) 0%, transparent 100%);
+    pointer-events: none; /* Garante que o clique passe para a imagem/link abaixo */
 }
 
 .slide-image {
@@ -77,6 +123,11 @@ body {
     object-fit: contain; 
     display: block;
     transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição suave para o zoom */
+}
+
+/* Dispara a animação de brilho ao passar o mouse no link */
+.slide-link:hover .slide-image-wrapper::before {
+    animation: glint 0.8s ease-in-out;
 }
 
 /* Efeito de Zoom ao passar o mouse no card */
@@ -113,11 +164,13 @@ body {
     text-decoration: none;
     color: inherit;
     outline: none; /* Remove outline padrão para substituir pelo focus-visible */
+    border-radius: 8px; /* Para que o outline siga o formato do card */
 }
 
 /* Foco visível para acessibilidade */
 .slide-link:focus-visible {
-    box-shadow: 0 0 0 3px var(--primary-color);
+    box-shadow: 0 0 0 3px var(--primary-color), 0 0 0 6px rgba(var(--primary-color-rgb), 0.3); /* Outline mais pronunciado */
+    outline: 2px solid transparent; /* Garante que o outline padrão do navegador não apareça */
 }
 
 /* Exibe o texto "Leia Mais" ou "Assista Agora" dentro do card */
@@ -183,7 +236,7 @@ body {
 }
 
 /* Ícone do Instagram */
-/* O ícone do Instagram agora está dentro de .slide-content, então sua posição absoluta é relativa a ele. */
+.instagram-icon {
     position: absolute; /* Posição absoluta em relação ao .slide-content */
     bottom: 10px; /* Ajuste a posição vertical */
     right: 15px; /* Ajuste a posição horizontal */
@@ -191,6 +244,60 @@ body {
     z-index: 5;
     transition: transform 0.3s ease, color 0.3s ease;
 }
+
+/* Estilização do Botão Play/Pause */
+.carousel-play-pause {
+    position: absolute;
+    top: 15px;
+    left: 85px; /* Movido para a esquerda, ao lado do contador */
+    right: auto;
+    background: rgba(0, 0, 0, 0.5);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+    transition: background 0.3s ease;
+}
+
+.progress-ring {
+    position: absolute;
+    top: 0;
+    left: 0;
+    transform: rotate(-90deg); /* Faz o progresso começar do topo */
+    pointer-events: none;
+}
+
+.progress-ring__bg {
+    stroke: rgba(255, 255, 255, 0.2);
+}
+
+.progress-ring__bar {
+    stroke: white;
+    /* Circunferência = 2 * PI * r (2 * 3.14 * 14 = ~88) */
+    stroke-dasharray: 88;
+    stroke-dashoffset: 88;
+    stroke-linecap: round;
+    /* Transição do traço (5s) e da cor (1s de duração com 4s de atraso) */
+    transition: stroke-dashoffset 5000ms linear, stroke 1000ms linear 4000ms;
+    will-change: stroke-dashoffset;
+}
+
+/* Ajuste fino para o contador para garantir alinhamento vertical com o botão */
+.carousel-counter {
+    display: flex;
+    align-items: center;
+    height: 32px; /* Mesma altura do botão play/pause */
+}
+
+.carousel-play-pause:hover { background: rgba(0, 0, 0, 0.7); }
+.carousel-play-pause:focus-visible { outline: 3px solid var(--primary-color); }
 
 .instagram-icon:hover {
     transform: scale(1.15);
@@ -230,18 +337,27 @@ body {
     font-size: 1.5em;
     border-radius: 50%;
     z-index: 10;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border: 2px solid transparent; /* Adiciona uma borda transparente inicialmente */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
 .carousel-button:focus-visible {
     outline: 3px solid var(--primary-color);
 }
 
+.carousel-button::before { /* Pseudo-elemento para o ícone da seta */
+    transition: color 0.3s ease; /* Transição de cor para o ícone */
+}
+
+
 .carousel-button:hover {
     background-color: #ffffff;
     transform: translateY(-50%) scale(1.1); /* Efeito de escala no hover */
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    /* Sombra de profundidade + Glow azul */
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2), 0 0 15px rgba(var(--primary-color-rgb), 0.6);
+    border-color: var(--primary-color); /* Borda azul sólida no hover */
+    color: var(--primary-color-hover); /* Escurece a cor do ícone no hover */
 }
 
 .carousel-button.prev {
@@ -287,6 +403,21 @@ body {
     border-radius: 10px; /* Transforma em pílula */
 }
 
+/* Contador de Slides */
+.carousel-counter {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(0, 0, 0, 0.5);
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(4px);
+    z-index: 10;
+}
+
 /* Barra de Progresso do Autoplay */
 .autoplay-progress-container {
     position: absolute;
@@ -302,7 +433,26 @@ body {
     height: 100%;
     width: 0%;
     background-color: var(--primary-color);
-    transition: width 5s linear; /* Deve coincidir com o tempo do autoplay */
+    /* Sincroniza a largura (5s) e a mudança de cor (1s de duração com 4s de atraso) */
+    transition: width 5000ms linear, background-color 1000ms linear 4000ms;
+}
+
+/* Spinner de Carregamento */
+.spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 123, 255, 0.1);
+    border-left-color: var(--primary-color);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    z-index: 100;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
 /* Botão "Mais Notícias" */
@@ -339,9 +489,10 @@ body {
     to { background-position-x: -200%; }
 }
 
-@keyframes spin {
-    0% { transform: translate(-50%, -50%) rotate(0deg); }
-    100% { transform: translate(-50%, -50%) rotate(360deg); }
+/* Animação do brilho percorrendo o card */
+@keyframes glint {
+    0% { left: -150%; }
+    100% { left: 150%; }
 }
 
 /* Responsividade básica */

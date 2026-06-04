@@ -1,9 +1,21 @@
 [
     {
         "published": true,
+        "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3894_570_370_202605281647491500000.jpeg",
+        "altText": "Batatais é selecionada pelo MEC para integrar Mapa de Experiências Inspiradoras da Educação Integral em Tempo Integral",
+        "date": "2026-05-28",
+        "displayDate": "28 de Maio de 2026",
+        "instagramLink": "https://www.instagram.com/p/DY5RBrnmq07/?img_index=1",
+        "link": "https://www.batatais.sp.gov.br/noticias/batatais-e-selecionada-pelo-mec-para-integrar-mapa-de-experiencias-inspiradoras-da-educacao-integral-em-tempo-integral",
+        "title": "🌱 Batatais conquista reconhecimento nacional na educação! O município foi selecionado pelo MEC para integrar o Mapa de Experiências Inspiradoras da Educação Integral em Tempo Integral.",
+        "description": "A iniciativa é promovida pelo MEC (Ministério da Educação), em parceria com a UFMG, e reúne práticas inovadoras de redes públicas de todo o país.",
+        "readMoreText": "Leia Mais"
+    },
+    {
+        "published": true,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3885_570_370_202605211737356826830.jpeg",
         "altText": "🌱🏃‍♂️ Batatais mobiliza escolas e comunidade em gincana que une esporte e sustentabilidade ♻️📚",
-        "date": "2026-04-23",
+        "date": "2026-05-21",
         "displayDate": "21 de Maio de 2026",
         "instagramLink": "https://www.instagram.com/p/DYnXEPGgfj5/",
         "link": "https://www.batatais.sp.gov.br/noticias/batatais-mobiliza-escolas-e-comunidade-em-gincana-que-une-esporte-e-sustentabilidade",
@@ -60,7 +72,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3742_570_370_202602031349104125050.jpg",
         "altText": "Projeto desenvolvido em parceria com a Secretaria de Educação de Batatais recebe Selo ODS Educação da Unesp",
         "date": "2026-02-03",
@@ -72,7 +84,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3738_570_370_202601280850249707330.jpeg",
         "altText": "📚✨ Escolas Municipais de Batatais avançam no Índice de Fluência Leitora em 2025",
         "date": "2026-01-28",
@@ -84,7 +96,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3720_570_370_202601151513521143540.jpg",
         "altText": "📚✨ MATRÍCULAS ABERTAS PARA A EJA EM BATATAIS – 2026 ✨📚",
         "date": "2026-01-15",
@@ -96,7 +108,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3678_570_370_202512011715590632000.jpg",
         "altText": "Secretaria de Educação de Batatais realiza a 3ª Edição da Feira de Tecnologia e Inovação",
         "date": "2025-12-01",
@@ -108,7 +120,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3670_570_370_202511251545055318320.jpg",
         "altText": "Secretaria de Educação de Batatais convida para a cerimônia de premiação do Concurso de Leitura ‘Elefante Letrado’",
         "date": "2025-11-25",
@@ -120,7 +132,7 @@
         "readMoreText": "Leia Mais"
     },
     {
-        "published": true,
+        "published": false,
         "imageUrl": "https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3662_570_370_202511171701473086660.jpg",
         "altText": "Secretaria de Educação realiza Festival da Educação Infantil com o tema Brinquedos e Brincadeiras",
         "date": "2025-11-17",

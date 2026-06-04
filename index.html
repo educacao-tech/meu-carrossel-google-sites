@@ -25,9 +25,20 @@
                 &#10095; 
             </button>
 
+            <button class="carousel-play-pause" aria-label="Pausar reprodução automática" aria-pressed="false">
+                <svg class="progress-ring" width="32" height="32">
+                    <circle class="progress-ring__bg" cx="16" cy="16" r="14" fill="transparent" stroke-width="2" />
+                    <circle class="progress-ring__bar" cx="16" cy="16" r="14" fill="transparent" stroke-width="2" />
+                </svg>
+                <span class="play-pause-icon" aria-hidden="true">⏸</span>
+            </button>
+
             <div class="carousel-counter" aria-live="polite" aria-atomic="true">
             </div>
 
+            <div id="live-announcer" class="visually-hidden" aria-live="polite" aria-atomic="true">
+                <!-- Conteúdo para leitores de tela será inserido aqui -->
+            </div>
             <div class="carousel-dots" role="tablist" aria-label="Navegação do Carrossel">
             </div>
         </div>

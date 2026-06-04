@@ -8,9 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextButton = document.querySelector('.carousel-button.next');
     const carouselDotsContainer = document.querySelector('.carousel-dots');
     const progressBar = document.querySelector('.autoplay-progress-bar');
+    const progressCircle = document.querySelector('.progress-ring__bar');
+    const liveAnnouncer = document.getElementById('live-announcer');
+    const playPauseBtn = document.querySelector('.carousel-play-pause');
     let slides = []; // Será preenchido após a geração dos slides
     let currentIndex = 0; // Começa no primeiro slide
     let autoPlayInterval = null;
+    let isPausedManually = false;
     // Variáveis para o controle do swipe
     let touchStartX = 0;
 
@@ -57,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
         publishedNews.forEach((newsItem, index) => {
             // Cria o ícone do Instagram apenas se o link existir
             const instagramIconHTML = newsItem.instagramLink
-                ? `<a href="${newsItem.instagramLink}" target="_blank" rel="noopener noreferrer" class="instagram-icon" aria-label="Ver no Instagram" onclick="event.stopPropagation()">
+                ? `<a href="${newsItem.instagramLink}" target="_blank" rel="noopener noreferrer" class="instagram-icon" aria-label="Ver no Instagram" onclick="event.stopPropagation()" tabindex="-1">
                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
                    </a>`
                 : '';
@@ -76,29 +80,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
             slidesHTML += `
                 <div class="carousel-slide" role="tabpanel" id="${slideId}" aria-labelledby="${slideTitleId}">
-                    <a 
-                        href="${newsItem.link}" 
-                        target="_blank" 
-                        class="slide-link" 
-                        aria-label="Leia a notícia: ${escapedTitle}" 
-                        tabindex="-1"
-                        data-description="${escapedDescription}">
-                        <div class="slide-date">${formattedDate}</div>
-                        <div class="slide-body">
+                    <div class="slide-body">
+                        <a 
+                            href="${newsItem.link}" 
+                            target="_blank" 
+                            class="slide-link" 
+                            aria-label="Leia a notícia: ${escapedTitle}" 
+                            tabindex="-1"
+                            data-description="${escapedDescription}">
+                            <div class="slide-date">${formattedDate}</div>
                             <div class="slide-image-wrapper">
-                                <img 
-                                    class="slide-image" 
-                                    src="${newsItem.imageUrl}" 
-                                    alt="${newsItem.altText}" 
-                                    loading="${index === 0 ? 'eager' : 'lazy'}">
+                                <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="${index === 0 ? 'eager' : 'lazy'}">
                             </div>
                             <div class="slide-content" data-read-more="${newsItem.readMoreText}"> 
                                 <div class="slide-title" id="${slideTitleId}">${newsItem.title}</div>
                                 <p class="slide-description"></p>
-                                ${instagramIconHTML}
                             </div>
-                        </div>
-                    </a>
+                        </a>
+                        ${instagramIconHTML}
+                    </div>
                 </div>
             `;
         });
@@ -126,6 +126,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dot.setAttribute('role', 'tab');
             dot.setAttribute('aria-controls', slides[i].id); // CORREÇÃO: Usar o ID do slide correspondente
             dot.setAttribute('aria-label', `Ir para a notícia ${i + 1}`);
+            dot.setAttribute('tabindex', i === 0 ? '0' : '-1'); // Apenas o primeiro dot é focado inicialmente via Tab
             dot.addEventListener('click', () => {
                 moveTo(i);
                 resetAutoPlay();
@@ -141,6 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             dot.classList.toggle('active', index === targetIndex);
             dot.setAttribute('aria-selected', index === targetIndex ? 'true' : 'false');
             dot.setAttribute('aria-current', index === targetIndex ? 'true' : 'false');
+            dot.setAttribute('tabindex', index === targetIndex ? '0' : '-1'); // Atualiza qual dot recebe foco via Tab
         });
     };
 
@@ -170,6 +172,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const link = slide.querySelector('.slide-link');
                 descriptionEl.innerHTML = link.dataset.description || '';
             }
+
+            // Garante que apenas elementos no slide ativo sejam focáveis via teclado
+            const focusableElements = slide.querySelectorAll('a, button, [tabindex]');
+            focusableElements.forEach(el => {
+                el.setAttribute('tabindex', isActive ? '0' : '-1');
+            });
+
             slide.classList.toggle('is-active', isActive);
             slide.setAttribute('aria-hidden', !isActive);
         });
@@ -177,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
         currentIndex = targetIndex;
         updateDots(targetIndex);
         updateCounter(targetIndex, slides.length);
+        
+        // Anuncia o título da notícia para leitores de tela
+        if (liveAnnouncer && slides[targetIndex]) {
+            liveAnnouncer.textContent = `Notícia atual: ${slides[targetIndex].querySelector('.slide-title').textContent}`;
+        }
         resetProgressBar();
 
         // Restaura a animação após a execução
@@ -197,19 +211,43 @@ document.addEventListener('DOMContentLoaded', () => {
     // Reinicia a animação da barra de progresso
     const resetProgressBar = () => {
         if (!progressBar) return;
-        progressBar.style.transition = 'none';
-        progressBar.style.width = '0%';
-        // Force reflow
-        progressBar.offsetHeight;
-        progressBar.style.transition = 'width 5000ms linear';
-        progressBar.style.width = '100%';
+        
+        [progressBar, progressCircle].forEach(el => {
+            if (!el) return;
+            el.style.transition = 'none';
+            if (el === progressBar) {
+                el.style.width = '0%';
+                el.style.backgroundColor = 'var(--primary-color)'; // Reseta para a cor original (azul)
+            } else {
+                el.style.strokeDashoffset = '88';
+                el.style.stroke = 'white'; // Reseta a cor para branco no início
+            }
+            
+            el.offsetHeight; // Force reflow
+            
+            if (!isPausedManually) {
+                if (el === progressBar) {
+                    // Aplica a transição de largura e cor sincronizada com o anel
+                    el.style.transition = 'width 5000ms linear, background-color 1000ms linear 4000ms';
+                    el.style.width = '100%';
+                    el.style.backgroundColor = '#28a745'; // Muda para verde no final
+                } else {
+                    // Aplica a transição de cor com delay de 4 segundos
+                    el.style.transition = 'stroke-dashoffset 5000ms linear, stroke 1000ms linear 4000ms';
+                    el.style.strokeDashoffset = '0';
+                    el.style.stroke = '#28a745'; // Verde (pode usar var(--primary-color) se preferir)
+                }
+            }
+        });
     };
 
     // Reinicia o autoplay
     const resetAutoPlay = () => {
         clearInterval(autoPlayInterval);
-        autoPlayInterval = setInterval(() => nextButton.click(), 5000);
-        resetProgressBar();
+        if (!isPausedManually) {
+            autoPlayInterval = setInterval(() => nextButton.click(), 5000);
+            resetProgressBar();
+        }
     };
 
     // --- 4. INICIALIZAÇÃO E EVENTOS ---
@@ -253,6 +291,30 @@ document.addEventListener('DOMContentLoaded', () => {
         // Melhora a acessibilidade dos botões de navegação
         prevButton.setAttribute('aria-controls', 'carousel-track');
         nextButton.setAttribute('aria-controls', 'carousel-track');
+        carouselContainer.setAttribute('aria-roledescription', 'carrossel');
+
+        // Controle de Play/Pause
+        if (playPauseBtn) {
+            const iconSpan = playPauseBtn.querySelector('.play-pause-icon');
+            playPauseBtn.addEventListener('click', () => {
+                isPausedManually = !isPausedManually;
+                playPauseBtn.setAttribute('aria-pressed', isPausedManually);
+                playPauseBtn.setAttribute('aria-label', isPausedManually ? 'Retomar reprodução automática' : 'Pausar reprodução automática');
+                
+                if (iconSpan) {
+                    iconSpan.textContent = isPausedManually ? '▶' : '⏸';
+                }
+                
+                if (isPausedManually) {
+                    clearInterval(autoPlayInterval);
+                    // Pausa visualmente as barras
+                    if (progressBar) progressBar.style.transition = 'none';
+                    if (progressCircle) progressCircle.style.transition = 'none';
+                } else {
+                    resetAutoPlay();
+                }
+            });
+        }
 
         // O moveTo(0) já chama updateCounter e updateDots
         moveTo(0); // Posiciona no slide inicial
@@ -276,14 +338,31 @@ document.addEventListener('DOMContentLoaded', () => {
             moveTo(currentIndex, false);
         }));
 
-        // --- Melhoria: Navegação por Teclado ---
+        // --- Navegação por Teclado ---
         carouselContainer.addEventListener('keydown', (e) => {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault(); // Previne o scroll da página
-                prevButton.click();
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault(); // Previne o scroll da página
-                nextButton.click();
+            const dots = Array.from(carouselDotsContainer.children);
+            const isDotFocused = dots.includes(document.activeElement);
+
+            if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+                e.preventDefault(); // Evita scroll da página
+                
+                let nextIndex;
+                if (e.key === 'ArrowRight') {
+                    nextIndex = (currentIndex + 1) % slides.length;
+                } else {
+                    nextIndex = (currentIndex - 1 + slides.length) % slides.length;
+                }
+
+                moveTo(nextIndex);
+                resetAutoPlay();
+
+                // Se o foco já estava nos dots, movemos o foco visual para o novo dot ativo
+                // Isso segue o padrão de design "Tabs" do ARIA
+                if (isDotFocused) {
+                    setTimeout(() => {
+                        carouselDotsContainer.children[nextIndex].focus();
+                    }, 10);
+                }
             }
         });
 
