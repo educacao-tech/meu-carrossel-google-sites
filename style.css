@@ -121,8 +121,7 @@ body {
      * 'contain' garante que a imagem inteira seja visível, sem cortes. 
      * Ideal para banners que contêm texto. A alternativa 'cover' preencheria o espaço, mas poderia cortar partes da imagem.
      */
-    object-fit: cover; /* Alterado para cover para preencher melhor o espaço no mobile */
-    object-position: center;
+    object-fit: contain; 
     display: block;
     transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição suave para o zoom */
 }
