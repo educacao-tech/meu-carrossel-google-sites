@@ -21,9 +21,10 @@ body {
     font-family: var(--font-family);
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 100vh;
+    align-items: flex-start; /* Alinha o conteúdo ao topo */
+    min-height: auto; /* Remove a altura mínima de tela cheia */
     margin: 0;
+    padding-top: 0; /* Remove qualquer espaçamento superior */
     background-color: var(--background-color);
 }
 
@@ -31,14 +32,14 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 25px; /* Espaço entre o carrossel e o botão */
+    gap: 15px; /* Reduz o espaço entre o carrossel e o botão "Ver Mais" */
     width: 100%;
 }
 
 .carousel-container {
     position: relative;
-    width: 90%; /* Ajuste a largura conforme necessário */
-    max-width: 800px; /* Largura máxima para o carrossel */
+    width: 100%; /* Ocupa 100% da largura do contêiner pai */
+    max-width: none; /* Remove o limite de largura máxima */
     min-height: 500px; /* Previne Layout Shift enquanto carrega */
     overflow: hidden; /* Esconde os slides que não estão ativos */
     border-radius: 8px;
