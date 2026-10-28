@@ -90,6 +90,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             data-description="${escapedDescription}">
                             <div class="slide-date">${formattedDate}</div>
                             <div class="slide-image-wrapper">
+                                <div class="slide-image-bg" style="background-image: url('${newsItem.imageUrl}');" aria-hidden="true"></div>
                                 <img class="slide-image" src="${newsItem.imageUrl}" alt="${newsItem.altText}" loading="${index === 0 ? 'eager' : 'lazy'}">
                             </div>
                             <div class="slide-content" data-read-more="${newsItem.readMoreText}"> 
@@ -105,13 +106,27 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselTrack.innerHTML = slidesHTML; // Inserção única no DOM
         slides = Array.from(carouselTrack.children);
 
-        // Adiciona o tratamento de erro para imagens de forma centralizada
+        // Enquadramento automático e tratamento de erro de imagens
         slides.forEach(slide => {
             const img = slide.querySelector('.slide-image');
+            const bg = slide.querySelector('.slide-image-bg');
+            const wrapper = slide.querySelector('.slide-image-wrapper');
             if (img) {
+                const applyAspect = () => {
+                    if (img.naturalWidth && img.naturalHeight && wrapper) {
+                        wrapper.style.setProperty('--img-aspect', `${img.naturalWidth} / ${img.naturalHeight}`);
+                    }
+                };
+
+                if (img.complete && img.naturalWidth > 0) {
+                    applyAspect();
+                } else {
+                    img.addEventListener('load', applyAspect);
+                }
+
                 img.addEventListener('error', () => {
-                    // Placeholder em SVG inline para evitar requisições extras se falhar
                     img.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22450%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%23f0f2f5%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2224%22%20fill%3D%22%23999%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%3EImagem%20Indispon%C3%ADvel%3C/text%3E%3C/svg%3E';
+                    if (bg) bg.style.backgroundImage = 'none';
                 });
             }
         });

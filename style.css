@@ -73,14 +73,40 @@ body {
     position: relative; /* Necessário para posicionar o ícone do Instagram corretamente */
 }
 
-/* Wrapper para controlar o zoom da imagem sem vazar */
+/* Wrapper para enquadramento automático da imagem total */
 .slide-image-wrapper {
-    position: relative; /* Necessário para posicionar o gradiente sobre a imagem */
+    position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* Mantém a proporção independente da largura */
-    max-height: 350px;
-    overflow: hidden; /* Essencial para o efeito de zoom */
-    background-color: var(--image-background-color);
+    aspect-ratio: var(--img-aspect, 570 / 370); /* Adota automaticamente a proporção da imagem */
+    max-height: 380px;
+    overflow: hidden;
+    background-color: #12131a; /* Fundo escuro para realce e contraste elegante */
+}
+
+/* Fundo ambiente desfocado: preenche automaticamente qualquer resíduo sem barras cinzas */
+.slide-image-bg {
+    position: absolute;
+    inset: -15px; /* Expande para o efeito blur cobrir as bordas suavemente */
+    background-size: cover;
+    background-position: center;
+    filter: blur(22px) brightness(0.65) saturate(1.2);
+    transform: scale(1.1);
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.85;
+    transition: transform 0.6s ease;
+}
+
+/* Imagem frontal: ENQUADRA A IMAGEM TODA, 100% VISÍVEL, SEM CORTES */
+.slide-image {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Enquadramento total: 100% da imagem sempre visível */
+    object-position: center;
+    display: block;
+    z-index: 2;
+    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 /* Efeito de brilho (glint) que percorre a imagem no hover */
@@ -88,17 +114,17 @@ body {
     content: '';
     position: absolute;
     top: 0;
-    left: -150%; /* Começa fora da visão à esquerda */
+    left: -150%;
     width: 50%;
     height: 100%;
     background: linear-gradient(
         to right,
         rgba(255, 255, 255, 0) 0%,
-        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0.25) 50%,
         rgba(255, 255, 255, 0) 100%
     );
-    transform: skewX(-25deg); /* Inclinação diagonal para um visual dinâmico */
-    z-index: 2; /* Fica acima da imagem e do gradiente azul */
+    transform: skewX(-25deg);
+    z-index: 3;
     pointer-events: none;
     will-change: left;
 }
@@ -110,29 +136,23 @@ body {
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 60%; /* Aumentado ligeiramente para um efeito mais suave */
-    /* Usa a variável RGB para criar um gradiente azul translúcido */
-    background: linear-gradient(to top, rgba(var(--primary-color-rgb), 0.5) 0%, transparent 100%);
-    pointer-events: none; /* Garante que o clique passe para a imagem/link abaixo */
+    height: 35%;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.4) 0%, transparent 100%);
+    z-index: 3;
+    pointer-events: none;
 }
 
-.slide-image {
-    width: 100%;
-    height: 100%; /* Preenche o wrapper */
-    object-fit: cover; /* Enquadramento impecável sem barras cinzas laterais */
-    object-position: center;
-    display: block;
-    transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição suave para o zoom */
+/* Efeito de Zoom suave no hover */
+.slide-link:hover .slide-image {
+    transform: scale(1.025);
 }
 
-/* Dispara a animação de brilho ao passar o mouse no link */
+.slide-link:hover .slide-image-bg {
+    transform: scale(1.18);
+}
+
 .slide-link:hover .slide-image-wrapper::before {
     animation: glint 0.8s ease-in-out;
-}
-
-/* Efeito de Zoom ao passar o mouse no card */
-.slide-link:hover .slide-image {
-    transform: scale(1.06);
 }
 
 .slide-date {
@@ -484,7 +504,7 @@ body {
     animation: 1.5s shine linear infinite;
 }
 
-.skeleton-image { width: 100%; aspect-ratio: 16/9; margin-bottom: 20px; }
+.skeleton-image { width: 100%; aspect-ratio: 570 / 370; margin-bottom: 20px; }
 .skeleton-text { height: 20px; width: 80%; margin: 10px auto; }
 .skeleton-text.short { width: 50%; }
 
@@ -522,14 +542,14 @@ body {
     }
 
     .slide-image-wrapper {
-        aspect-ratio: 16 / 9;
-        max-height: 240px;
+        aspect-ratio: var(--img-aspect, 570 / 370);
+        max-height: 260px;
         border-radius: 0;
     }
 
     .slide-image {
         height: 100%;
-        object-fit: cover;
+        object-fit: contain; /* Enquadra a imagem inteira sem cortes no mobile */
         border-radius: 0;
     }
 
