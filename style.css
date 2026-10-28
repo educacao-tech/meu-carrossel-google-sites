@@ -17,45 +17,47 @@
     box-sizing: border-box;
 }
 
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    background-color: transparent; /* Permite integração limpa no Google Sites */
+}
+
 body {
     font-family: var(--font-family);
     display: flex;
     justify-content: center;
     align-items: flex-start; /* Alinha o conteúdo ao topo */
     min-height: auto; /* Remove a altura mínima de tela cheia */
-    margin: 0;
-    padding-top: 0; /* Remove qualquer espaçamento superior */
-    background-color: var(--background-color);
+    padding: 6px 8px 16px; /* Respiro de segurança para não cortar sombras ou animações no iframe */
 }
 
 .content-wrapper {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 15px; /* Reduz o espaço entre o carrossel e o botão "Ver Mais" */
+    gap: 14px; /* Espaço harmônico entre o carrossel e o botão "Ver Mais" */
     width: 100%;
+    max-width: 820px; /* Enquadramento ideal: evita esticar excessivamente no Google Sites */
+    margin: 0 auto;
 }
 
 .carousel-container {
     position: relative;
-    width: 100%; /* Ocupa 100% da largura do contêiner pai */
-    max-width: none; /* Remove o limite de largura máxima */
-    min-height: 500px; /* Previne Layout Shift enquanto carrega */
+    width: 100%;
+    min-height: 480px; /* Previne Layout Shift durante carregamento */
     overflow: hidden; /* Esconde os slides que não estão ativos */
-    border-radius: 8px;
-    box-shadow: 0 8px 16px var(--shadow-color);
+    border-radius: 12px;
+    box-shadow: 0 6px 18px var(--shadow-color);
     background-color: var(--card-background-color);
-    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transição suave para a sombra e elevação */
+    transition: box-shadow 0.3s ease, transform 0.3s ease; /* Transição suave para sombra e elevação */
 }
 
 .carousel-container:hover {
-    /* 
-       Sombra multi-camada: 
-       1. Sombra escura para profundidade 
-       2. Sombra azul (glow) com espalhamento (spread) para o efeito de brilho
-    */
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18), 0 0 20px rgba(var(--primary-color-rgb), 0.4);
-    transform: translateY(-4px); /* Efeito de "elevação" */
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.15), 0 0 16px rgba(var(--primary-color-rgb), 0.3);
+    transform: translateY(-3px); /* Elevação suave sem vazar no topo do iframe */
 }
 
 .carousel-track {
@@ -117,11 +119,8 @@ body {
 .slide-image {
     width: 100%;
     height: 100%; /* Preenche o wrapper */
-    /* 
-     * 'contain' garante que a imagem inteira seja visível, sem cortes. 
-     * Ideal para banners que contêm texto. A alternativa 'cover' preencheria o espaço, mas poderia cortar partes da imagem.
-     */
-    object-fit: contain; 
+    object-fit: cover; /* Enquadramento impecável sem barras cinzas laterais */
+    object-position: center;
     display: block;
     transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* Transição suave para o zoom */
 }
@@ -133,18 +132,22 @@ body {
 
 /* Efeito de Zoom ao passar o mouse no card */
 .slide-link:hover .slide-image {
-    transform: scale(1.08);
+    transform: scale(1.06);
 }
 
 .slide-date {
-    padding: 10px 20px;
-    font-size: clamp(0.75rem, 0.2vw + 0.7rem, 0.9rem); /* Escala entre ~12px e ~14px */
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 46px;
+    padding: 0 18px 0 125px; /* Deixa espaço à esquerda para o contador e play/pause */
+    font-size: clamp(0.75rem, 0.2vw + 0.7rem, 0.88rem);
     font-weight: 600;
     color: var(--text-color-secondary);
     background-color: var(--card-background-color);
     text-align: right;
-    border-top-left-radius: 8px;
-    border-top-right-radius: 8px;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
 }
 
 .slide-content {
@@ -249,10 +252,10 @@ body {
 /* Estilização do Botão Play/Pause */
 .carousel-play-pause {
     position: absolute;
-    top: 15px;
-    left: 85px; /* Movido para a esquerda, ao lado do contador */
+    top: 7px;
+    left: 78px; /* Perfeitamente alinhado na barra de cabeçalho */
     right: auto;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.55);
     border: none;
     color: white;
     width: 32px;
@@ -264,7 +267,7 @@ body {
     justify-content: center;
     backdrop-filter: blur(4px);
     z-index: 10;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.2s ease;
 }
 
 .progress-ring {
@@ -326,20 +329,19 @@ body {
 /* Navegação */
 .carousel-button {
     position: absolute;
-    top: 160px; /* Posição ajustada para a nova altura da imagem */
+    top: calc(46px + min(170px, 28%)); /* Centralizado perfeitamente sobre a imagem */
     transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.85); /* Fundo claro translúcido */
+    background-color: rgba(255, 255, 255, 0.9);
     color: var(--primary-color);
     backdrop-filter: blur(4px); /* Efeito de vidro */
-    border: none;
-    width: 44px;
-    height: 44px;
+    border: 2px solid transparent;
+    width: 42px;
+    height: 42px;
     cursor: pointer;
-    font-size: 1.5em;
+    font-size: 1.4em;
     border-radius: 50%;
     z-index: 10;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    border: 2px solid transparent; /* Adiciona uma borda transparente inicialmente */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.16);
     transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease, border-color 0.3s ease, color 0.3s ease;
 }
 
@@ -407,11 +409,11 @@ body {
 /* Contador de Slides */
 .carousel-counter {
     position: absolute;
-    top: 15px;
-    left: 15px;
-    background: rgba(0, 0, 0, 0.5);
+    top: 7px;
+    left: 14px;
+    background: rgba(0, 0, 0, 0.55);
     color: white;
-    padding: 4px 12px;
+    padding: 0 12px;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
@@ -499,67 +501,102 @@ body {
 /* Responsividade básica */
 @media (max-width: 768px) {
     body {
-        align-items: flex-start; /* Melhora a rolagem e evita cortes em telas pequenas */
+        padding: 4px 4px 12px;
+        align-items: flex-start;
     }
 
     .content-wrapper {
         padding: 0;
-        gap: 10px; /* Reduz o espaço vertical entre elementos */
+        gap: 12px;
     }
 
     .carousel-container {
-        width: 100%; /* Ocupa mais espaço na tela */
-        border-radius: 0; /* Bordas retas no mobile para parecer nativo da largura da tela */
-        box-shadow: 0 4px 10px var(--shadow-color);
-        min-height: 560px; /* Aumentado para dar fôlego à descrição e ao botão Leia Mais */
+        width: 100%;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px var(--shadow-color);
+        min-height: 430px; /* Altura compacta: enquadra perfeitamente no Google Sites mobile sem rolagem */
     }
 
     .slide-body {
-        /* Coloca a imagem e o conteúdo em coluna */
         flex-direction: column;
     }
 
     .slide-image-wrapper {
         aspect-ratio: 16 / 9;
-        border-radius: 8px 8px 0 0;
+        max-height: 240px;
+        border-radius: 0;
     }
 
     .slide-image {
         height: 100%;
         object-fit: cover;
-        border-radius: 0; /* O wrapper já cuida do arredondamento */
+        border-radius: 0;
     }
 
     .slide-content {
-        /* Ajusta o preenchimento para telas menores */
-        padding: 15px; /* Aumenta o espaço para facilitar a leitura e o toque */
-        /* Permite que o conteúdo cresça para exibir todo o texto */
+        padding: 12px 16px 44px;
         flex-grow: 1;
         min-height: auto;
     }
 
     .slide-title {
-        -webkit-line-clamp: 1; /* Limita a apenas 1 linha no mobile */
-        min-height: 1.2em; /* Ajusta a altura mínima para corresponder a apenas uma linha */
+        -webkit-line-clamp: 2; /* Permite 2 linhas para que o título seja compreensível */
+        min-height: 2.4em;
+        font-size: 1.05rem;
     }
 
     .slide-description {
         display: -webkit-box;
-        -webkit-line-clamp: 2; /* Garante que a descrição apareça com até 2 linhas */
-        min-height: 2.8em; /* Reserva o espaço necessário para as 2 linhas */
+        -webkit-line-clamp: 2;
+        min-height: 2.8em;
+        font-size: 0.88rem;
+        margin: 6px 0;
     }
 
     .slide-date {
-        padding: 45px 15px 5px; /* Aumenta o topo para descer a data e não bater nos botões (Play/Pause) */
-        font-size: 0.8rem;
+        min-height: 42px;
+        padding: 0 14px 0 115px; /* Mesma linha sem necessidade de margem superior excessiva */
+        font-size: 0.75rem;
     }
 
-    /* Ajusta o tamanho e a posição dos botões de navegação */
-    .carousel-button {
+    .carousel-counter {
+        top: 6px;
+        left: 10px;
+        height: 30px;
+        font-size: 0.75rem;
+        padding: 0 10px;
+    }
+
+    .carousel-play-pause {
+        top: 6px;
+        left: 70px;
         width: 30px;
         height: 30px;
-        font-size: 18px;
-        top: 25%; /* Posiciona relativo à imagem para não cobrir o texto */
+    }
+
+    .carousel-play-pause svg {
+        width: 30px;
+        height: 30px;
+    }
+
+    .carousel-button {
+        width: 34px;
+        height: 34px;
+        font-size: 16px;
+        top: calc(42px + min(120px, 28%));
+    }
+
+    .carousel-button.prev {
+        left: 8px;
+    }
+
+    .carousel-button.next {
+        right: 8px;
+    }
+
+    .more-news-button {
+        padding: 10px 22px;
+        font-size: 0.9rem;
     }
 }
 
