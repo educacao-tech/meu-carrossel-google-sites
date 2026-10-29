@@ -3,12 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meu Carrossel de Notícias</title>
+    <title>Carrossel de Notícias - SME Batatais</title>
+    
+    <!-- Metadados de SEO e Redes Sociais (Open Graph / Twitter Cards) -->
+    <meta name="description" content="Carrossel oficial de notícias, avisos e comunicados da Secretaria Municipal de Educação de Batatais.">
+    <meta property="og:title" content="Notícias da Secretaria de Educação - Batatais/SP">
+    <meta property="og:description" content="Acompanhe os projetos, matrículas, avanços pedagógicos e comunicados da rede municipal de ensino de Batatais.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://www.batatais.sp.gov.br/uploads/noticias/capa/medium/news_3894_570_370_202605281647491500000.jpeg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#007bff">
+
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="content-wrapper">
+        <!-- Barra de Filtros por Categoria -->
+        <nav class="category-filters" id="category-filters" aria-label="Filtrar notícias por assunto">
+            <!-- Pílulas geradas dinamicamente pelo JavaScript -->
+        </nav>
+
         <div class="carousel-container" role="region" aria-label="Carrossel de Notícias" tabindex="0">
             <div class="autoplay-progress-container">
                 <div class="autoplay-progress-bar"></div>
@@ -42,9 +57,45 @@
             <div class="carousel-dots" role="tablist" aria-label="Navegação do Carrossel">
             </div>
         </div>
+
         <a href="https://sites.google.com/educacao.batatais.sp.gov.br/seceduc/noticias" class="more-news-button" target="_blank" rel="noopener noreferrer">Ver Mais Notícias</a>
     </div>
 
+    <!-- Modal de Prévia Rápida -->
+    <div id="news-modal" class="news-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+        <div class="news-modal-overlay" data-close-modal></div>
+        <div class="news-modal-content">
+            <button type="button" class="news-modal-close" data-close-modal aria-label="Fechar prévia">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+            <div class="news-modal-image-wrapper">
+                <img id="modal-image" src="" alt="" class="news-modal-image">
+            </div>
+            <div class="news-modal-body">
+                <div class="news-modal-meta">
+                    <span id="modal-category" class="badge badge-category"></span>
+                    <span id="modal-date" class="modal-date-text"></span>
+                </div>
+                <h2 id="modal-title" class="news-modal-title"></h2>
+                <p id="modal-description" class="news-modal-description"></p>
+                <div class="news-modal-footer">
+                    <a id="modal-link" href="#" target="_blank" rel="noopener noreferrer" class="modal-primary-btn">
+                        Ler Matéria Completa no Portal Oficial
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                            <polyline points="15 3 21 3 21 9"></polyline>
+                            <line x1="10" y1="14" x2="21" y2="3"></line>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast flutuante -->
     <div id="copy-toast" class="copy-toast" aria-live="polite"></div>
 
     <script src="script.js"></script>

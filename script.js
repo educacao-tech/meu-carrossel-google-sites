@@ -1,21 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CONFIGURAÇÕES E ESTADO ---
     const CONFIG = {
-        // Fonte remota de notícias (portal do Google Sites da SME / educacao-tech)
         remoteUrl: 'https://educacao-tech.github.io/noticias_2025/news.json',
-        // Fallback local caso a rede falhe ou o carrossel esteja offline
         localUrl: 'news.json',
-        // Chave do cache no localStorage (Stale-While-Revalidate)
         cacheKey: 'sme_carrossel_news_cache_v2',
-        // Quantidade máxima de notícias mais recentes exibidas no carrossel
         maxSlides: 6,
-        // Tempo limite (ms) para buscar da fonte remota antes de acionar o fallback local
         fetchTimeoutMs: 3500,
-        // Intervalo do autoplay (ms)
         autoplayDelay: 5000
     };
 
-    // --- 2. SELETORES E VARIÁVEIS GLOBAIS ---
+    // --- 2. SELETORES GLOBAIS ---
     const carouselContainer = document.querySelector('.carousel-container');
     const carouselTrack = document.querySelector('.carousel-track');
     const spinner = document.querySelector('.spinner');
@@ -27,8 +21,22 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressCircle = document.querySelector('.progress-ring__bar');
     const liveAnnouncer = document.getElementById('live-announcer');
     const playPauseBtn = document.querySelector('.carousel-play-pause');
+    const categoryFiltersContainer = document.getElementById('category-filters');
 
-    let slides = []; // Preenchido dinamicamente
+    // Modal de Prévia Rápida
+    const newsModal = document.getElementById('news-modal');
+    const modalImage = document.getElementById('modal-image');
+    const modalCategory = document.getElementById('modal-category');
+    const modalDate = document.getElementById('modal-date');
+    const modalTitle = document.getElementById('modal-title');
+    const modalDescription = document.getElementById('modal-description');
+    const modalLink = document.getElementById('modal-link');
+
+    // Estado da aplicação
+    let allMasterNews = [];       // Lista completa de notícias consolidadas
+    let currentFilteredNews = []; // Notícias após filtro ativo de categoria
+    let activeCategory = 'all';   // Categoria selecionada
+    let slides = [];              // Slides atuais do DOM
     let currentIndex = 0;
     let autoPlayInterval = null;
     let isPausedManually = false;
@@ -42,7 +50,26 @@ document.addEventListener('DOMContentLoaded', () => {
         isPausedManually = true;
     }
 
-    // --- 3. HELPERS E UTILITÁRIOS ---
+    // --- 3. REGISTRO DE SERVICE WORKER (PWA & OFFLINE) ---
+    if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js').catch(() => {});
+        });
+    }
+
+    // --- 4. HELPERS E ANALYTICS ---
+
+    // Telemetria anônima de cliques e engajamento
+    const trackEvent = (action, label) => {
+        try {
+            if (typeof window.gtag === 'function') {
+                window.gtag('event', action, { event_label: label });
+            }
+            const logs = JSON.parse(sessionStorage.getItem('sme_news_analytics') || '[]');
+            logs.push({ action, label, time: new Date().toISOString() });
+            sessionStorage.setItem('sme_news_analytics', JSON.stringify(logs.slice(-50)));
+        } catch (_) {}
+    };
 
     // Comunica altura ao Google Sites para evitar barras de rolagem internas
     const sendHeightToParent = () => {
@@ -55,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.parent.postMessage({
                 type: 'meu-carrossel-resize',
                 source: 'meu-carrossel',
-                height: height + 8
+                height: height + 10
             }, '*');
         } catch (_) {}
     };
@@ -92,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         })[m]);
     };
 
-    // Classificação inteligente de categoria da notícia
+    // Classificação inteligente de categoria
     const getCategory = (item) => {
         const text = `${item.title || ''} ${item.description || ''}`.toLowerCase();
         if (text.includes('matrícula') || text.includes('eja') || text.includes('inscrição') || text.includes('vagas')) return 'Matrículas';
@@ -100,11 +127,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (text.includes('tecnologia') || text.includes('inovação') || text.includes('digital') || text.includes('robótica')) return 'Tecnologia';
         if (text.includes('esporte') || text.includes('gincana') || text.includes('ginástica') || text.includes('clima')) return 'Esporte & Lazer';
         if (text.includes('leitura') || text.includes('livro') || text.includes('alfabetização') || text.includes('saresp') || text.includes('fluência')) return 'Pedagógico';
-        if (text.includes('prêmio') || text.includes('reconhecimento') || text.includes('destaque') || text.includes('ouro') || text.includes('ods') || text.includes('mec')) return 'Destaque';
+        if (text.includes('prêmio') || text.includes('reconhecimento') || text.includes('destaque') || text.includes('ouro') || text.includes('ods') || text.includes('mec') || text.includes('fórum')) return 'Destaque';
         return 'Geral';
     };
 
-    // Converte data da notícia para timestamp numérico garantindo ordenação perfeita
+    // Estimativa do tempo de leitura da matéria
+    const estimateReadingTime = (item) => {
+        const text = `${item.title || ''} ${item.description || ''}`;
+        const words = text.trim().split(/\s+/).length;
+        const minutes = Math.max(1, Math.round(words / 45));
+        return `${minutes} min de leitura`;
+    };
+
+    // Converte data para timestamp numérico garantindo ordenação perfeita
     const getTimeFromItem = (item) => {
         if (!item) return 0;
         if (item.date) {
@@ -124,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 janeiro: 0, fevereiro: 1, marco: 2, março: 2, abril: 3, maio: 4, junho: 5,
                 julho: 6, agosto: 7, setembro: 8, outubro: 9, novembro: 10, dezembro: 11
             };
-            const textMatch = String(item.displayDate).toLowerCase().match(/(\d{1,2})\s+de\s+([a-zç]+)s+des+(\d{4})/);
+            const textMatch = String(item.displayDate).toLowerCase().match(/(\d{1,2})\s+des+([a-zç]+)s+des+(\d{4})/);
             if (textMatch && meses[textMatch[2]] !== undefined) {
                 return new Date(Number(textMatch[3]), meses[textMatch[2]], Number(textMatch[1])).getTime();
             }
@@ -132,16 +167,15 @@ document.addEventListener('DOMContentLoaded', () => {
         return 0;
     };
 
-    // Identifica se a notícia é recente (últimos 30 dias ou a 1ª da lista)
+    // Identifica se a notícia é recente
     const isRecentNews = (item, index) => {
-        if (index === 0) return true; // A mais recente sempre ganha o selo de destaque
+        if (index === 0) return true;
         const time = getTimeFromItem(item);
         if (!time) return false;
         const diffDays = (Date.now() - time) / (1000 * 60 * 60 * 24);
         return diffDays >= 0 && diffDays <= 30;
     };
 
-    // Helper debounce
     const debounce = (func, delay = 250) => {
         let timeoutId;
         return (...args) => {
@@ -150,21 +184,118 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     };
 
-    // --- 4. RENDERIZAÇÃO DO CARROSSEL ---
+    // --- 5. MODAL DE PRÉVIA RÁPIDA ---
 
-    const generateCarouselSlides = (newsData) => {
-        if (!Array.isArray(newsData)) {
-            console.error("Dados inválidos: newsData deve ser um array.");
-            return;
+    const openPreviewModal = (newsItem) => {
+        if (!newsModal || !newsItem) return;
+        trackEvent('preview_open', newsItem.title);
+
+        modalImage.src = newsItem.imageUrl || '';
+        modalImage.alt = newsItem.altText || newsItem.title || 'Imagem da notícia';
+        modalCategory.textContent = getCategory(newsItem);
+        
+        let formattedDate = newsItem.displayDate || newsItem.date || '';
+        modalDate.textContent = `${formattedDate} • ⏱️ ${estimateReadingTime(newsItem)}`;
+        modalTitle.textContent = newsItem.title || '';
+        modalDescription.textContent = newsItem.description || '';
+        modalLink.href = newsItem.link || '#';
+
+        newsModal.removeAttribute('hidden');
+        // Força reflow para transição CSS suave
+        newsModal.offsetHeight;
+        newsModal.classList.add('active');
+
+        // Pausa autoplay enquanto lê a prévia
+        clearInterval(autoPlayInterval);
+    };
+
+    const closePreviewModal = () => {
+        if (!newsModal) return;
+        newsModal.classList.remove('active');
+        setTimeout(() => {
+            newsModal.setAttribute('hidden', '');
+            resetAutoPlay();
+        }, 300);
+    };
+
+    // Fechar modal ao clicar no botão fechar ou overlay
+    document.addEventListener('click', (e) => {
+        if (e.target.matches('[data-close-modal]') || e.target.closest('[data-close-modal]')) {
+            closePreviewModal();
+        }
+    });
+
+    // Fechar com tecla ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && newsModal && !newsModal.hasAttribute('hidden')) {
+            closePreviewModal();
+        }
+    });
+
+    // --- 6. RENDERIZAÇÃO DOS FILTROS POR CATEGORIA ---
+
+    const renderCategoryFilters = () => {
+        if (!categoryFiltersContainer || allMasterNews.length === 0) return;
+
+        // Extrai categorias existentes e conta matérias
+        const categoryCounts = { all: allMasterNews.length };
+        allMasterNews.forEach(item => {
+            const cat = getCategory(item);
+            categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+
+        const categories = Object.keys(categoryCounts).filter(k => k !== 'all');
+
+        let html = `<button type="button" class="filter-pill ${activeCategory === 'all' ? 'active' : ''}" data-category="all">
+            Todas <span aria-hidden="true">(${categoryCounts.all})</span>
+        </button>`;
+
+        categories.forEach(cat => {
+            html += `<button type="button" class="filter-pill ${activeCategory === cat ? 'active' : ''}" data-category="${escapeHTML(cat)}">
+                ${escapeHTML(cat)} <span aria-hidden="true">(${categoryCounts[cat]})</span>
+            </button>`;
+        });
+
+        categoryFiltersContainer.innerHTML = html;
+
+        // Event listener para as pílulas
+        categoryFiltersContainer.querySelectorAll('.filter-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const cat = btn.dataset.category;
+                if (cat === activeCategory) return;
+                activeCategory = cat;
+                trackEvent('filter_category', cat);
+
+                categoryFiltersContainer.querySelectorAll('.filter-pill').forEach(b => {
+                    b.classList.toggle('active', b.dataset.category === cat);
+                });
+
+                applyCurrentFilter();
+            });
+        });
+    };
+
+    const applyCurrentFilter = () => {
+        if (activeCategory === 'all') {
+            currentFilteredNews = allMasterNews.slice(0, CONFIG.maxSlides || undefined);
+        } else {
+            currentFilteredNews = allMasterNews
+                .filter(item => getCategory(item) === activeCategory)
+                .slice(0, CONFIG.maxSlides || undefined);
         }
 
-        const publishedNews = newsData
-            .filter(item => item && item.published)
-            .sort((a, b) => getTimeFromItem(b) - getTimeFromItem(a))
-            .slice(0, CONFIG.maxSlides || undefined);
+        generateCarouselSlides(currentFilteredNews);
+        setupInteractiveControls();
+    };
 
-        if (publishedNews.length === 0) {
-            carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhuma notícia disponível no momento.</p>';
+    // --- 7. RENDERIZAÇÃO DOS SLIDES DO CARROSSEL ---
+
+    const generateCarouselSlides = (newsData) => {
+        if (!Array.isArray(newsData)) return;
+
+        if (newsData.length === 0) {
+            carouselTrack.innerHTML = '<div class="carousel-slide"><p style="text-align: center; padding: 40px; width: 100%; color: var(--text-color-secondary);">Nenhuma notícia nesta categoria no momento.</p></div>';
+            slides = Array.from(carouselTrack.children);
             if (spinner) spinner.style.display = 'none';
             return;
         }
@@ -176,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         let slidesHTML = '';
-        publishedNews.forEach((newsItem, index) => {
+        newsData.forEach((newsItem, index) => {
             let formattedDate = newsItem.displayDate;
             if (newsItem.date) {
                 const dateObj = new Date(newsItem.date + 'T00:00:00');
@@ -196,6 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const isRecent = isRecentNews(newsItem, index);
             const recentBadgeHTML = isRecent ? '<span class="badge badge-recent">✨ Recente</span>' : '';
             const categoryBadgeHTML = category ? `<span class="badge badge-category">${escapeHTML(category)}</span>` : '';
+            const readTime = estimateReadingTime(newsItem);
 
             // Ações de Compartilhamento
             const shareText = encodeURIComponent(`${newsItem.title}\n\nLeia mais em: ${newsItem.link}`);
@@ -209,7 +341,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const actionsHTML = `
                 <div class="slide-actions" onclick="event.stopPropagation()">
-                    <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" class="action-btn whatsapp-btn" aria-label="Compartilhar notícia no WhatsApp" title="Compartilhar no WhatsApp" tabindex="-1">
+                    <button type="button" class="action-btn preview-btn" data-news-idx="${index}" aria-label="Abrir prévia rápida" title="Prévia Rápida" tabindex="-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                    <a href="${whatsappUrl}" target="_blank" rel="noopener noreferrer" class="action-btn whatsapp-btn" aria-label="Compartilhar notícia no WhatsApp" title="Compartilhar no WhatsApp" tabindex="-1" onclick="trackEvent('share_whatsapp', '${escapedTitle}')">
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                             <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
                         </svg>
@@ -233,8 +371,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             class="slide-link" 
                             aria-label="Leia a notícia: ${escapedTitle}" 
                             tabindex="-1"
-                            data-description="${escapedDescription}">
-                            <div class="slide-date">${formattedDate}</div>
+                            data-description="${escapedDescription}"
+                            onclick="trackEvent('read_more_click', '${escapedTitle}')">
+                            <div class="slide-date">${formattedDate} • ⏱️ ${readTime}</div>
                             <div class="slide-image-wrapper">
                                 <div class="slide-badges">
                                     ${recentBadgeHTML}
@@ -261,7 +400,7 @@ document.addEventListener('DOMContentLoaded', () => {
         carouselTrack.innerHTML = slidesHTML;
         slides = Array.from(carouselTrack.children);
 
-        // Ajuste de proporção e erro de imagem
+        // Enquadramento e tratamento de erro de imagens
         slides.forEach(slide => {
             const img = slide.querySelector('.slide-image');
             const bg = slide.querySelector('.slide-image-bg');
@@ -273,11 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 };
 
-                if (img.complete && img.naturalWidth > 0) {
-                    applyAspect();
-                } else {
-                    img.addEventListener('load', applyAspect);
-                }
+                if (img.complete && img.naturalWidth > 0) applyAspect();
+                else img.addEventListener('load', applyAspect);
 
                 img.addEventListener('error', () => {
                     img.src = 'data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22800%22%20height%3D%22450%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Crect%20width%3D%22100%25%22%20height%3D%22100%25%22%20fill%3D%22%2323262e%22/%3E%3Ctext%20x%3D%2250%25%22%20y%3D%2250%25%22%20font-family%3D%22sans-serif%22%20font-size%3D%2222%22%20fill%3D%22%23bbb%22%20text-anchor%3D%22middle%22%20dy%3D%22.3em%22%3EImagem%20Indispon%C3%ADvel%3C/text%3E%3C/svg%3E';
@@ -289,7 +425,7 @@ document.addEventListener('DOMContentLoaded', () => {
         sendHeightToParent();
     };
 
-    // Gera os pontos de navegação
+    // Gera os pontos de navegação com miniaturas (Thumbnails)
     const generateDots = () => {
         carouselDotsContainer.innerHTML = '';
         const numDots = slides.length;
@@ -300,6 +436,19 @@ document.addEventListener('DOMContentLoaded', () => {
             dot.setAttribute('aria-controls', slides[i].id);
             dot.setAttribute('aria-label', `Ir para a notícia ${i + 1}`);
             dot.setAttribute('tabindex', i === 0 ? '0' : '-1');
+
+            // Thumbnail tooltip para desktop
+            const newsItem = currentFilteredNews[i];
+            if (newsItem) {
+                const thumb = document.createElement('div');
+                thumb.className = 'dot-thumb';
+                thumb.innerHTML = `
+                    <img src="${newsItem.imageUrl || ''}" alt="" loading="lazy">
+                    <span class="dot-thumb-title">${escapeHTML(newsItem.title || '')}</span>
+                `;
+                dot.appendChild(thumb);
+            }
+
             dot.addEventListener('click', () => {
                 moveTo(i);
                 resetAutoPlay();
@@ -318,13 +467,17 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Contador formatado com dois dígitos: 01 / 06
     const updateCounter = (current, total) => {
         if (carouselCounter) {
-            carouselCounter.innerHTML = `<span class="visually-hidden">Notícia ${current + 1} de ${total}</span><span aria-hidden="true">${current + 1} / ${total}</span>`;
+            const curPad = String(current + 1).padStart(2, '0');
+            const totPad = String(total).padStart(2, '0');
+            carouselCounter.innerHTML = `<span class="visually-hidden">Notícia ${current + 1} de ${total}</span><span class="counter-display" aria-hidden="true"><strong>${curPad}</strong> / ${totPad}</span>`;
         }
     };
 
     const moveTo = (targetIndex, withAnimation = true) => {
+        if (slides.length === 0) return;
         const newTransform = -targetIndex * 100;
         carouselTrack.style.transition = withAnimation && !prefersReducedMotion ? 'transform 0.5s ease-in-out' : 'none';
         carouselTrack.style.transform = `translateX(${newTransform}%)`;
@@ -352,7 +505,8 @@ document.addEventListener('DOMContentLoaded', () => {
         updateCounter(targetIndex, slides.length);
 
         if (liveAnnouncer && slides[targetIndex]) {
-            liveAnnouncer.textContent = `Notícia atual: ${slides[targetIndex].querySelector('.slide-title').textContent}`;
+            const titleEl = slides[targetIndex].querySelector('.slide-title');
+            if (titleEl) liveAnnouncer.textContent = `Notícia atual: ${titleEl.textContent}`;
         }
         resetProgressBar();
         sendHeightToParent();
@@ -390,13 +544,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const resetAutoPlay = () => {
         clearInterval(autoPlayInterval);
-        if (!isPausedManually && !prefersReducedMotion) {
+        if (!isPausedManually && !prefersReducedMotion && slides.length > 1) {
             autoPlayInterval = setInterval(() => nextButton.click(), CONFIG.autoplayDelay);
             resetProgressBar();
         }
     };
 
-    // --- 5. CARREGAMENTO COM STALE-WHILE-REVALIDATE ---
+    // --- 8. CARREGAMENTO E MESCLAGEM COM STALE-WHILE-REVALIDATE ---
 
     const fetchWithTimeout = async (url, timeoutMs) => {
         const controller = new AbortController();
@@ -415,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const fetchAndMergeNews = async () => {
         const newsMap = new Map();
 
-        // 1. Carrega notícias locais
+        // 1. Notícias locais
         try {
             const localResponse = await fetch(CONFIG.localUrl);
             if (localResponse.ok) {
@@ -433,7 +587,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.warn("Aviso ao carregar notícias locais:", localErr.message);
         }
 
-        // 2. Carrega notícias remotas (Google Sites / educacao-tech)
+        // 2. Notícias remotas (Google Sites / educacao-tech)
         try {
             const remoteData = await fetchWithTimeout(CONFIG.remoteUrl, CONFIG.fetchTimeoutMs);
             if (Array.isArray(remoteData)) {
@@ -452,7 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (newsMap.size === 0) return null;
 
-        // Ordena estritamente da mais recente para a mais antiga
+        // Ordena estritamente por data decrescente
         return Array.from(newsMap.values())
             .sort((a, b) => getTimeFromItem(b) - getTimeFromItem(a));
     };
@@ -482,7 +636,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (iconSpan) iconSpan.textContent = '▶';
             }
 
-            playPauseBtn.addEventListener('click', () => {
+            playPauseBtn.onclick = () => {
                 isPausedManually = !isPausedManually;
                 playPauseBtn.setAttribute('aria-pressed', isPausedManually);
                 playPauseBtn.setAttribute('aria-label', isPausedManually ? 'Retomar reprodução automática' : 'Pausar reprodução automática');
@@ -495,33 +649,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     resetAutoPlay();
                 }
-            });
+            };
         }
 
         moveTo(0);
         resetAutoPlay();
     };
 
-    // --- 6. INICIALIZAÇÃO DA APLICAÇÃO ---
+    // --- 9. INICIALIZAÇÃO DA APLICAÇÃO ---
 
     const init = async () => {
         let hasRenderedFromCache = false;
 
-        // 1º: Carregamento instantâneo via Cache (Stale-While-Revalidate)
+        // 1º: Leitura imediata do Cache (Stale-While-Revalidate)
         try {
             const cachedJSON = localStorage.getItem(CONFIG.cacheKey);
             if (cachedJSON) {
                 const cachedData = JSON.parse(cachedJSON);
                 if (Array.isArray(cachedData) && cachedData.length > 0) {
                     if (spinner) spinner.style.display = 'none';
-                    generateCarouselSlides(cachedData);
-                    setupInteractiveControls();
+                    allMasterNews = cachedData;
+                    renderCategoryFilters();
+                    applyCurrentFilter();
                     hasRenderedFromCache = true;
                 }
             }
         } catch (_) {}
 
-        // Se não havia cache, exibe esqueleto de carregamento
         if (!hasRenderedFromCache) {
             carouselTrack.innerHTML = `
                 <div class="carousel-slide">
@@ -532,19 +686,19 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         }
 
-        // 2º: Busca em segundo plano na rede (Fresh Data)
+        // 2º: Busca em segundo plano na rede
         try {
             const freshData = await fetchAndMergeNews();
             if (freshData && freshData.length > 0) {
                 const currentCache = localStorage.getItem(CONFIG.cacheKey);
                 const freshJSON = JSON.stringify(freshData);
 
-                // Atualiza se não havia cache ou se os dados mudaram
                 if (!hasRenderedFromCache || currentCache !== freshJSON) {
                     localStorage.setItem(CONFIG.cacheKey, freshJSON);
                     if (spinner) spinner.style.display = 'none';
-                    generateCarouselSlides(freshData);
-                    setupInteractiveControls();
+                    allMasterNews = freshData;
+                    renderCategoryFilters();
+                    applyCurrentFilter();
                 }
             } else if (!hasRenderedFromCache) {
                 throw new Error("Nenhum dado retornado");
@@ -557,7 +711,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // Event Listeners globais de botões
+        // Navegação por botões
         prevButton.addEventListener('click', () => {
             const newIndex = currentIndex > 0 ? currentIndex - 1 : slides.length - 1;
             moveTo(newIndex);
@@ -575,7 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sendHeightToParent();
         }));
 
-        // Navegação por teclado
+        // Teclado
         carouselContainer.addEventListener('keydown', (e) => {
             if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
                 e.preventDefault();
@@ -587,7 +741,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Swipe em telas touch
+        // Swipe
         carouselTrack.addEventListener('touchstart', (e) => {
             touchStartX = e.changedTouches[0].screenX;
         }, { passive: true });
@@ -612,24 +766,40 @@ document.addEventListener('DOMContentLoaded', () => {
             else resetAutoPlay();
         });
 
-        // Event delegation para botão Copiar Link
+        // Event delegation para Copiar Link e Prévia Rápida
         document.addEventListener('click', (e) => {
+            // Copiar link
             const copyBtn = e.target.closest('.copy-btn');
-            if (!copyBtn) return;
-            e.preventDefault();
-            e.stopPropagation();
-            const link = copyBtn.dataset.link;
-            if (link) {
-                if (navigator.clipboard && navigator.clipboard.writeText) {
-                    navigator.clipboard.writeText(link).then(() => showToast('✓ Link copiado para a área de transferência!'));
-                } else {
-                    const temp = document.createElement('textarea');
-                    temp.value = link;
-                    document.body.appendChild(temp);
-                    temp.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(temp);
-                    showToast('✓ Link copiado para a área de transferência!');
+            if (copyBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const link = copyBtn.dataset.link;
+                if (link) {
+                    trackEvent('copy_link', link);
+                    if (navigator.clipboard && navigator.clipboard.writeText) {
+                        navigator.clipboard.writeText(link).then(() => showToast('✓ Link copiado para a área de transferência!'));
+                    } else {
+                        const temp = document.createElement('textarea');
+                        temp.value = link;
+                        document.body.appendChild(temp);
+                        temp.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(temp);
+                        showToast('✓ Link copiado para a área de transferência!');
+                    }
+                }
+                return;
+            }
+
+            // Prévia rápida
+            const previewBtn = e.target.closest('.preview-btn');
+            if (previewBtn) {
+                e.preventDefault();
+                e.stopPropagation();
+                const idx = parseInt(previewBtn.dataset.newsIdx, 10);
+                const newsItem = currentFilteredNews[idx];
+                if (newsItem) {
+                    openPreviewModal(newsItem);
                 }
             }
         });
