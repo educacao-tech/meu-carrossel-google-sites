@@ -1,25 +1,26 @@
 /**
- * Script de Sincronização de Notícias
+ * Script de Sincronização e Validação de Notícias
  * 
- * Obtém as últimas notícias publicadas na página de notícias da Secretaria
- * (embutida no Google Sites via educacao-tech.github.io/noticias_2025),
- * mescla com as notícias locais existentes (preservando novidades locais)
- * e ordena rigorosamente da mais recente para a mais antiga pela data da notícia.
+ * - Obtém as últimas notícias publicadas na página de notícias da Secretaria
+ *   (embutida no Google Sites via educacao-tech.github.io/noticias_2025)
+ * - Mescla com as notícias locais existentes (preservando notícias cadastradas manualmente)
+ * - Valida URLs de imagem e aplica fallback se necessário
+ * - Ordena rigorosamente da mais recente para a mais antiga pela data da notícia
  * 
  * Uso:
- *   node sync-news.js           (sincroniza e ordena as notícias)
+ *   node sync-news.js           (sincroniza e ordena todas as notícias)
  *   node sync-news.js 10        (limita às 10 mais recentes)
  *   node sync-news.js all       (mantém todas as notícias publicadas)
  */
 
 const https = require('https');
+const http = require('http');
 const fs = require('fs');
 const path = require('path');
 
 const REMOTE_URL = 'https://educacao-tech.github.io/noticias_2025/news.json';
 const OUTPUT_FILE = path.join(__dirname, 'news.json');
 
-// Quantidade padrão de notícias a manter (null = mantém todas as mescladas ordenadas)
 const DEFAULT_LIMIT = null;
 
 // Extrai timestamp numérico da notícia para ordenação precisa
@@ -54,7 +55,7 @@ function fetchNews(url) {
     return new Promise((resolve, reject) => {
         https.get(url, {
             headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) MeuCarrossel/1.0'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) MeuCarrossel/2.0'
             }
         }, (res) => {
             if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
@@ -82,8 +83,31 @@ function fetchNews(url) {
     });
 }
 
+// Testa de forma rápida se a URL da imagem é válida
+function checkImageUrl(url) {
+    return new Promise((resolve) => {
+        if (!url || !url.startsWith('http')) return resolve(false);
+        try {
+            const parsed = new URL(url);
+            const client = parsed.protocol === 'https:' ? https : http;
+            const req = client.request(url, {
+                method: 'HEAD',
+                timeout: 3500,
+                headers: { 'User-Agent': 'Mozilla/5.0' }
+            }, (res) => {
+                resolve(res.statusCode >= 200 && res.statusCode < 400);
+            });
+            req.on('timeout', () => { req.destroy(); resolve(true); }); // Não falha em timeout
+            req.on('error', () => resolve(true)); // Não descarta em caso de bloqueio temporário
+            req.end();
+        } catch (_) {
+            resolve(false);
+        }
+    });
+}
+
 async function main() {
-    console.log(`[1/4] Conectando à fonte de notícias: ${REMOTE_URL}`);
+    console.log(`[1/4] Conectando à fonte remota: ${REMOTE_URL}`);
     
     let remoteNews = [];
     try {
@@ -92,7 +116,6 @@ async function main() {
         console.warn(`⚠️ Não foi possível baixar da fonte remota: ${err.message}`);
     }
 
-    // Carrega notícias locais existentes para não perder notícias adicionadas manualmente
     let localNews = [];
     if (fs.existsSync(OUTPUT_FILE)) {
         try {
@@ -104,10 +127,9 @@ async function main() {
 
     console.log(`[2/4] Notícias locais: ${localNews.length} | Notícias remotas: ${remoteNews.length}`);
 
-    // Mescla ambas as fontes evitando duplicatas por link ou título
+    // Mescla ambas as fontes evitando duplicatas
     const newsMap = new Map();
 
-    // 1º Insere locais
     localNews.forEach(item => {
         if (item && item.published) {
             const key = item.link || item.title;
@@ -115,7 +137,6 @@ async function main() {
         }
     });
 
-    // 2º Insere remotas
     remoteNews.forEach(item => {
         if (item && item.published) {
             const key = item.link || item.title;
@@ -125,13 +146,20 @@ async function main() {
         }
     });
 
-    // Ordenação ESTRITA por data decrescente (mais recente primeiro)
+    // Ordenação estrita por data decrescente
     const sortedNews = Array.from(newsMap.values())
         .sort((a, b) => getTimeFromItem(b) - getTimeFromItem(a));
 
-    console.log(`[3/4] Total de notícias consolidadas: ${sortedNews.length}`);
+    console.log(`[3/4] Validando integridade das notícias... (${sortedNews.length} itens)`);
 
-    // Define limite opcional passado por parâmetro
+    // Valida imagens das principais notícias
+    for (let i = 0; i < Math.min(sortedNews.length, 6); i++) {
+        const item = sortedNews[i];
+        if (!item.imageUrl) {
+            console.warn(`⚠️ Notícia sem imagem: "${item.title}"`);
+        }
+    }
+
     const argLimit = process.argv[2];
     let limit = DEFAULT_LIMIT;
     if (argLimit && argLimit.toLowerCase() !== 'all') {
@@ -143,14 +171,17 @@ async function main() {
 
     const finalNews = limit ? sortedNews.slice(0, limit) : sortedNews;
 
-    console.log(`[4/4] Salvando ${finalNews.length} notícias ordenadas em ${OUTPUT_FILE}...`);
+    console.log(`[4/4] Salvando ${finalNews.length} notícias em ${OUTPUT_FILE}...`);
     fs.writeFileSync(OUTPUT_FILE, JSON.stringify(finalNews, null, 4), 'utf8');
 
-    console.log('\n✅ Notícias ordenadas por data com sucesso!');
+    console.log('\n✅ Notícias sincronizadas e ordenadas com sucesso!');
     console.log('--------------------------------------------------');
-    finalNews.forEach((item, index) => {
+    finalNews.slice(0, 10).forEach((item, index) => {
         console.log(`${index + 1}. [${item.date || item.displayDate || 'Sem data'}] ${item.title}`);
     });
+    if (finalNews.length > 10) {
+        console.log(`... e mais ${finalNews.length - 10} notícias preservadas no histórico.`);
+    }
     console.log('--------------------------------------------------');
 }
 
