@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+        // --- 1. CONFIGURAÇÕES ---
+    const CONFIG = {
+        // Fonte remota de notícias (portal do Google Sites da SME / noticias_2025)
+        remoteUrl: 'https://educacao-tech.github.io/noticias_2025/news.json',
+        // Fallback local caso a rede falhe ou o carrossel esteja offline
+        localUrl: 'news.json',
+        // Quantidade máxima de notícias mais recentes exibidas no carrossel
+        maxSlides: 6,
+        // Tempo limite (ms) para buscar da fonte remota antes de acionar o fallback local
+        fetchTimeoutMs: 3500
+    };
+
     // --- 2. SELETORES E VARIÁVEIS GLOBAIS ---
     const carouselContainer = document.querySelector('.carousel-container');
     const carouselTrack = document.querySelector('.carousel-track');
@@ -33,6 +45,34 @@ document.addEventListener('DOMContentLoaded', () => {
         })[m]);
     };
 
+        // Converte a data da notícia para timestamp numérico garantindo ordenação cronológica precisa
+    const getTimeFromItem = (item) => {
+        if (!item) return 0;
+        if (item.date) {
+            const isoMatch = String(item.date).match(/^(\d{4})-(\d{2})-(\d{2})/);
+            if (isoMatch) {
+                return new Date(Number(isoMatch[1]), Number(isoMatch[2]) - 1, Number(isoMatch[3])).getTime();
+            }
+            const timestamp = Date.parse(item.date);
+            if (!isNaN(timestamp)) return timestamp;
+        }
+        if (item.displayDate) {
+            const brMatch = String(item.displayDate).match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+            if (brMatch) {
+                return new Date(Number(brMatch[3]), Number(brMatch[2]) - 1, Number(brMatch[1])).getTime();
+            }
+            const meses = {
+                janeiro: 0, fevereiro: 1, marco: 2, março: 2, abril: 3, maio: 4, junho: 5,
+                julho: 6, agosto: 7, setembro: 8, outubro: 9, novembro: 10, dezembro: 11
+            };
+            const textMatch = String(item.displayDate).toLowerCase().match(/(\d{1,2})\s+de\s+([a-zç]+)\s+de\s+(\d{4})/);
+            if (textMatch && meses[textMatch[2]] !== undefined) {
+                return new Date(Number(textMatch[3]), meses[textMatch[2]], Number(textMatch[1])).getTime();
+            }
+        }
+        return 0;
+    };
+
     // Gera o HTML dos slides a partir dos dados (newsData)
     const generateCarouselSlides = (newsData) => {
         if (!Array.isArray(newsData)) {
@@ -41,8 +81,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const publishedNews = newsData
-            .filter(item => item.published)
-            .sort((a, b) => new Date(b.date) - new Date(a.date));
+            .filter(item => item && item.published)
+            .sort((a, b) => getTimeFromItem(b) - getTimeFromItem(a))
+            .slice(0, CONFIG.maxSlides || undefined);
 
         if (publishedNews.length === 0) {
             carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px;">Nenhuma notícia disponível no momento.</p>';
@@ -276,19 +317,73 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
         `;
 
-        try {
-            const response = await fetch('news.json');
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
+        // Função auxiliar para buscar com timeout
+        const fetchWithTimeout = async (url, timeoutMs) => {
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+                return await response.json();
+            } catch (err) {
+                clearTimeout(timeoutId);
+                throw err;
             }
-            const newsData = await response.json();
-            if (spinner) spinner.style.display = 'none'; // Esconde o spinner
-            generateCarouselSlides(newsData);
-        } catch (error) {
-            console.error("Não foi possível carregar as notícias:", error);
+        };
+
+        const newsMap = new Map();
+
+        // 1. Carrega notícias locais (garante disponibilidade rápida e notícias recentes locais)
+        try {
+            const localResponse = await fetch(CONFIG.localUrl);
+            if (localResponse.ok) {
+                const localData = await localResponse.json();
+                if (Array.isArray(localData)) {
+                    localData.forEach(item => {
+                        if (item && item.published) {
+                            const key = item.link || item.title;
+                            newsMap.set(key, item);
+                        }
+                    });
+                }
+            }
+        } catch (localErr) {
+            console.warn("Aviso ao carregar notícias locais:", localErr.message);
+        }
+
+        // 2. Carrega notícias da fonte remota do Google Sites (noticias_2025) e mescla
+        try {
+            const remoteData = await fetchWithTimeout(CONFIG.remoteUrl, CONFIG.fetchTimeoutMs);
+            if (Array.isArray(remoteData)) {
+                remoteData.forEach(item => {
+                    if (item && item.published) {
+                        const key = item.link || item.title;
+                        // Adiciona caso não exista, ou atualiza mantendo a mais detalhada
+                        if (!newsMap.has(key)) {
+                            newsMap.set(key, item);
+                        }
+                    }
+                });
+            }
+        } catch (remoteError) {
+            console.warn("Aviso: Falha ao carregar notícias da fonte remota:", remoteError.message);
+        }
+
+        // Se nenhuma das fontes forneceu dados válidos
+        if (newsMap.size === 0) {
+            console.error("Não foi possível carregar notícias de nenhuma fonte.");
+            if (spinner) spinner.style.display = 'none';
             carouselContainer.innerHTML = '<p style="text-align: center; padding: 20px; color: red;">Erro ao carregar notícias.</p>';
             return;
         }
+
+        // Converte para array e ordena rigorosamente por data (mais recente primeiro)
+        const newsData = Array.from(newsMap.values())
+            .sort((a, b) => getTimeFromItem(b) - getTimeFromItem(a));
+
+        if (spinner) spinner.style.display = 'none'; // Esconde o spinner
+        generateCarouselSlides(newsData);
 
         // Se houver apenas um slide, exiba-o estaticamente sem controles de navegação.
         if (slides.length <= 1) {

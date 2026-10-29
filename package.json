@@ -1,0 +1,17 @@
+{
+  "name": "meu-carrossel-google-sites",
+  "version": "1.1.0",
+  "description": "Carrossel de notícias da Secretaria Municipal de Educação de Batatais para incorporar no Google Sites",
+  "scripts": {
+    "sync": "node sync-news.js"
+  },
+  "keywords": [
+    "carrossel",
+    "google-sites",
+    "educacao-batatais",
+    "noticias"
+  ],
+  "author": "Secretaria Municipal de Educação de Batatais",
+  "license": "MIT"
+}
+
